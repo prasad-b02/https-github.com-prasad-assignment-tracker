@@ -96,6 +96,29 @@ def validate_deadline(value):
         return "Deadline cannot be in the past. Choose today or a future date."
     return None
 
+def predict_priority(title, deadline, previous_assignments):
+    deadline_date = date.fromisoformat(deadline)
+    days_remaining = (deadline_date - date.today()).days
+    urgency_score = 100 if days_remaining <= 2 else 75 if days_remaining <= 7 else 50 if days_remaining <= 14 else 25
+
+    previous_dates = sorted(date.fromisoformat(assignment['deadline']) for assignment in previous_assignments)
+    earlier_deadlines = sum(previous_date <= deadline_date for previous_date in previous_dates)
+    deadline_rank_score = round((len(previous_dates) - earlier_deadlines + 1) / (len(previous_dates) + 1) * 100)
+
+    priority_scores = {'High': 100, 'Medium': 60, 'Low': 20}
+    historical_scores = [priority_scores.get(assignment['priority'], 60) for assignment in previous_assignments]
+    history_score = sum(historical_scores) / len(historical_scores)
+
+    urgent_words = ('exam', 'final', 'urgent', 'lab', 'project', 'submission')
+    keyword_score = 20 if any(word in title.lower() for word in urgent_words) else 0
+    total_score = urgency_score * 0.55 + deadline_rank_score * 0.25 + history_score * 0.2 + keyword_score
+
+    if total_score >= 70:
+        return 'High', 'AI prediction: urgent deadline or priority pattern detected.'
+    if total_score >= 45:
+        return 'Medium', 'AI prediction: deadline and previous assignments indicate medium priority.'
+    return 'Low', 'AI prediction: deadline is later than the higher-priority assignments.'
+
 # --------------------------------------------------------------------
 # PAGE 1: SUBJECTS CONCEPTS HUB (DEFAULT HOME PAGE)
 # --------------------------------------------------------------------
@@ -209,14 +232,22 @@ def add_assignment():
         subject = request.form.get('subject') or request.form.get('subject_name') or 'Python'
         title = request.form.get('title') or request.form.get('assignment_title') or 'Assignment'
         deadline = request.form.get('deadline') or request.form.get('deadline_date') or ''
-        priority = request.form.get('priority') or 'Medium'
         status = request.form.get('status') or 'Pending'
 
         deadline_error = validate_deadline(deadline)
         if deadline_error:
-            return render_template('add_assignment.html', deadline_error=deadline_error, form_data=request.form, today=date.today().isoformat()), 400
+            conn = get_db_connection()
+            assignment_count = conn.execute('SELECT COUNT(*) FROM assignments').fetchone()[0]
+            conn.close()
+            return render_template('add_assignment.html', deadline_error=deadline_error, form_data=request.form, today=date.today().isoformat(), assignment_count=assignment_count), 400
 
         conn = get_db_connection()
+        previous_assignments = conn.execute('SELECT deadline, priority FROM assignments ORDER BY deadline ASC, id ASC').fetchall()
+        if previous_assignments:
+            priority, prediction_message = predict_priority(title, deadline, previous_assignments)
+        else:
+            priority = request.form.get('priority') or 'Medium'
+            prediction_message = None
         conn.execute('''
             INSERT INTO assignments (subject, title, deadline, priority, status)
             VALUES (?, ?, ?, ?, ?)
@@ -227,7 +258,10 @@ def add_assignment():
         # Redirects straight to the dashboard table to show your newly saved assignment
         return redirect(url_for('dashboard'))
 
-    return render_template('add_assignment.html', today=date.today().isoformat())
+    conn = get_db_connection()
+    assignment_count = conn.execute('SELECT COUNT(*) FROM assignments').fetchone()[0]
+    conn.close()
+    return render_template('add_assignment.html', today=date.today().isoformat(), assignment_count=assignment_count)
 
 # --------------------------------------------------------------------
 # EDIT & DELETE HANDLERS

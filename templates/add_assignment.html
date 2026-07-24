@@ -48,11 +48,16 @@
 
                 <h3 style="margin-bottom: 1rem; color: #60a5fa;">Step 3: Select Priority</h3>
                 <div style="margin-bottom: 1.5rem;">
+                    {% if assignment_count == 0 %}
                     <select name="priority" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
                         <option value="High">🔴 High Priority</option>
                         <option value="Medium" selected>🟡 Medium Priority</option>
                         <option value="Low">🟢 Low Priority</option>
                     </select>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">Set the priority for your first assignment. Later assignments receive an automatic prediction from previous deadlines and priorities.</p>
+                    {% else %}
+                    <div style="padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">🤖 Priority will be predicted automatically from previous assignments and deadlines.</div>
+                    {% endif %}
                 </div>
 
                 <h3 style="margin-bottom: 1rem; color: #60a5fa;">Step 4: Status & Save</h3>
