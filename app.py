@@ -29,6 +29,32 @@ def init_db():
         )
     ''')
 
+    assignment_columns = {row[1] for row in cursor.execute('PRAGMA table_info(assignments)').fetchall()}
+    if 'priority' not in assignment_columns:
+        cursor.execute('ALTER TABLE assignments RENAME TO assignments_legacy')
+        cursor.execute('''
+            CREATE TABLE assignments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                subject TEXT,
+                title TEXT,
+                deadline TEXT,
+                priority TEXT,
+                status TEXT
+            )
+        ''')
+        cursor.execute('''
+            INSERT INTO assignments (id, subject, title, deadline, priority, status)
+            SELECT id, subject, title, deadline,
+                   CASE
+                       WHEN UPPER(COALESCE(priority_tag, '')) LIKE '%HIGH%' THEN 'High'
+                       WHEN UPPER(COALESCE(priority_tag, '')) LIKE '%MEDIUM%' THEN 'Medium'
+                       ELSE 'Low'
+                   END,
+                   CASE WHEN status = 'In Progress' THEN 'Pending' ELSE status END
+            FROM assignments_legacy
+        ''')
+        cursor.execute('DROP TABLE assignments_legacy')
+
     # 2. Student Profile Table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS profile (
