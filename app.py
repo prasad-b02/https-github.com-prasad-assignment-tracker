@@ -5,12 +5,13 @@ from flask import Flask, abort, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "super_secret_assignment_tracker_key")
+DATABASE_PATH = os.environ.get("DATABASE_PATH", os.path.join(app.root_path, "assignments.db"))
 
 # --------------------------------------------------------------------
 # DATABASE INITIALIZATION
 # --------------------------------------------------------------------
 def get_db_connection():
-    conn = sqlite3.connect('assignments.db')
+    conn = sqlite3.connect(DATABASE_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
