@@ -1,4 +1,5 @@
-import os
+
+    import os
 import sqlite3
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -7,7 +8,7 @@ app = Flask(__name__)
 app.secret_key = "super_secret_assignment_tracker_key"
 
 # --------------------------------------------------------------------
-# DATABASE SETUP & AUTO-MIGRATION (SAFE FOR LOCAL & RENDER)
+# DATABASE SETUP & SAFE MIGRATION
 # --------------------------------------------------------------------
 def get_db_connection():
     conn = sqlite3.connect('assignments.db')
@@ -15,20 +16,19 @@ def get_db_connection():
     return conn
 
 def init_db():
-    """Safely creates, migrates, and seeds the database table with all columns."""
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Check existing columns in the assignments table if it exists
+    # Check table structure
     cursor.execute("PRAGMA table_info(assignments)")
     columns = [column[1] for column in cursor.fetchall()]
     
-    # If the table exists but is missing the 'unit' column, drop it to recreate cleanly
+    # Drop outdated schema if necessary
     if columns and 'unit' not in columns:
         cursor.execute("DROP TABLE assignments")
         conn.commit()
 
-    # Create table with all required columns
+    # Create master table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS assignments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,7 +44,7 @@ def init_db():
         )
     ''')
     
-    # Seed default sample assignments if the database is empty
+    # Auto-seed initial tasks
     count = cursor.execute('SELECT COUNT(*) FROM assignments').fetchone()[0]
     if count == 0:
         sample_data = [
@@ -60,14 +60,13 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Run database setup immediately on startup
+# Initialize DB on start
 init_db()
 
 # --------------------------------------------------------------------
-# AI PRIORITY CLASSIFIER ENGINE
+# PRIORITY CALCULATION
 # --------------------------------------------------------------------
 def calculate_priority(deadline_str, estimated_hours, difficulty, subject):
-    """Calculates AI Urgency Priority Score (0-100)."""
     try:
         deadline_date = datetime.strptime(deadline_str, "%Y-%m-%d").date()
         today = datetime.now().date()
@@ -86,28 +85,25 @@ def calculate_priority(deadline_str, estimated_hours, difficulty, subject):
         subject_weight = weights.get(subject, 1.1)
         effort_factor = float(estimated_hours) * 5.0
 
-        urgency_component = (100.0 / (days_remaining + 1.0)) * 0.50
-        effort_component = effort_factor * subject_weight
+        urgency = (100.0 / (days_remaining + 1.0)) * 0.50
+        effort = effort_factor * subject_weight
 
-        priority_score = min(100, int(urgency_component + effort_component))
+        score = min(100, int(urgency + effort))
 
-        if priority_score >= 75:
-            priority_tag = "🔴 HIGH / CRITICAL"
-        elif priority_score >= 45:
-            priority_tag = "🟡 MEDIUM PRIORITY"
+        if score >= 75:
+            tag = "🔴 HIGH / CRITICAL"
+        elif score >= 45:
+            tag = "🟡 MEDIUM PRIORITY"
         else:
-            priority_tag = "🟢 LOW PRIORITY"
+            tag = "🟢 LOW PRIORITY"
 
-        return priority_score, priority_tag, days_remaining
-
+        return score, tag, days_remaining
     except Exception:
         return 50, "🟡 MEDIUM PRIORITY", 3
 
 # --------------------------------------------------------------------
-# APPLICATION ROUTES
+# ROUTES
 # --------------------------------------------------------------------
-
-# 1. Main Dashboard
 @app.route('/')
 def index():
     conn = get_db_connection()
@@ -118,10 +114,7 @@ def index():
     for row in assignments_raw:
         item = dict(row)
         score, tag, days_left = calculate_priority(
-            item['deadline'], 
-            item['estimated_hours'], 
-            item['difficulty'], 
-            item['subject']
+            item['deadline'], item['estimated_hours'], item['difficulty'], item['subject']
         )
         item['priority_score'] = score
         item['priority_tag'] = tag
@@ -130,16 +123,15 @@ def index():
 
     return render_template('index.html', assignments=assignments)
 
-# 2. Add Assignment
 @app.route('/add', methods=['GET', 'POST'])
 def add_assignment():
     if request.method == 'POST':
-        title = request.form['title']
-        subject = request.form['subject']
-        unit = request.form['unit']
-        deadline = request.form['deadline']
-        estimated_hours = request.form['estimated_hours']
-        difficulty = request.form['difficulty']
+        title = request.form.get('title', 'Untitled Assignment')
+        subject = request.form.get('subject', 'C Programming')
+        unit = request.form.get('unit', 'Unit 1')
+        deadline = request.form.get('deadline', '2026-08-01')
+        estimated_hours = request.form.get('estimated_hours', 2)
+        difficulty = request.form.get('difficulty', 'Medium')
         status = "Pending"
 
         score, tag, _ = calculate_priority(deadline, estimated_hours, difficulty, subject)
@@ -152,25 +144,23 @@ def add_assignment():
         conn.commit()
         conn.close()
 
-        flash('Assignment added successfully!', 'success')
         return redirect(url_for('index'))
 
     return render_template('add_assignment.html')
 
-# 3. Edit Assignment
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_assignment(id):
     conn = get_db_connection()
     assignment = conn.execute('SELECT * FROM assignments WHERE id = ?', (id,)).fetchone()
 
     if request.method == 'POST':
-        title = request.form['title']
-        subject = request.form['subject']
-        unit = request.form['unit']
-        deadline = request.form['deadline']
-        estimated_hours = request.form['estimated_hours']
-        difficulty = request.form['difficulty']
-        status = request.form['status']
+        title = request.form.get('title')
+        subject = request.form.get('subject')
+        unit = request.form.get('unit')
+        deadline = request.form.get('deadline')
+        estimated_hours = request.form.get('estimated_hours')
+        difficulty = request.form.get('difficulty')
+        status = request.form.get('status')
 
         score, tag, _ = calculate_priority(deadline, estimated_hours, difficulty, subject)
 
@@ -182,23 +172,19 @@ def edit_assignment(id):
         conn.commit()
         conn.close()
 
-        flash('Assignment updated successfully!', 'success')
         return redirect(url_for('index'))
 
     conn.close()
     return render_template('edit_assignment.html', assignment=assignment)
 
-# 4. Delete Assignment
 @app.route('/delete/<int:id>')
 def delete_assignment(id):
     conn = get_db_connection()
     conn.execute('DELETE FROM assignments WHERE id = ?', (id,))
     conn.commit()
     conn.close()
-    flash('Assignment deleted.', 'danger')
     return redirect(url_for('index'))
 
-# 5. Analytics
 @app.route('/analytics')
 def analytics():
     conn = get_db_connection()
@@ -208,15 +194,9 @@ def analytics():
     high_priority = conn.execute("SELECT COUNT(*) FROM assignments WHERE priority_tag LIKE '%HIGH%' OR priority_tag LIKE '%CRITICAL%'").fetchone()[0]
     conn.close()
 
-    stats = {
-        'total': total,
-        'completed': completed,
-        'pending': pending,
-        'high_priority': high_priority
-    }
+    stats = {'total': total, 'completed': completed, 'pending': pending, 'high_priority': high_priority}
     return render_template('analytics.html', stats=stats)
 
-# 6. Profile & Project Guides
 @app.route('/profile')
 def profile():
     return render_template('profile.html')
@@ -225,7 +205,6 @@ def profile():
 def project_guide():
     return render_template('project_guide.html')
 
-# 7. R23 Core Subject Study Guides
 @app.route('/learn')
 def learn_hub():
     return render_template('learn/index.html')
@@ -250,9 +229,6 @@ def learn_math():
 def learn_it():
     return render_template('learn/it.html')
 
-# --------------------------------------------------------------------
-# SERVER LAUNCHER (CONFIGURED FOR LOCAL & RENDER CLOUD)
-# --------------------------------------------------------------------
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
