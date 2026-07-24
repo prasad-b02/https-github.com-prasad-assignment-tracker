@@ -1,5 +1,4 @@
-
-    import os
+import os
 import sqlite3
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -8,7 +7,7 @@ app = Flask(__name__)
 app.secret_key = "super_secret_assignment_tracker_key"
 
 # --------------------------------------------------------------------
-# DATABASE SETUP & SAFE MIGRATION
+# DATABASE CONNECTION & SCHEMA MANAGEMENT
 # --------------------------------------------------------------------
 def get_db_connection():
     conn = sqlite3.connect('assignments.db')
@@ -19,16 +18,16 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Check table structure
+    # Check if existing schema has 'unit' column
     cursor.execute("PRAGMA table_info(assignments)")
     columns = [column[1] for column in cursor.fetchall()]
     
-    # Drop outdated schema if necessary
+    # Reset table if schema is outdated
     if columns and 'unit' not in columns:
         cursor.execute("DROP TABLE assignments")
         conn.commit()
 
-    # Create master table
+    # Create assignments table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS assignments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,7 +43,7 @@ def init_db():
         )
     ''')
     
-    # Auto-seed initial tasks
+    # Auto-seed default assignments if database is empty
     count = cursor.execute('SELECT COUNT(*) FROM assignments').fetchone()[0]
     if count == 0:
         sample_data = [
@@ -60,11 +59,11 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Initialize DB on start
+# Boot up database
 init_db()
 
 # --------------------------------------------------------------------
-# PRIORITY CALCULATION
+# PRIORITY CALCULATION ENGINE
 # --------------------------------------------------------------------
 def calculate_priority(deadline_str, estimated_hours, difficulty, subject):
     try:
@@ -102,7 +101,7 @@ def calculate_priority(deadline_str, estimated_hours, difficulty, subject):
         return 50, "🟡 MEDIUM PRIORITY", 3
 
 # --------------------------------------------------------------------
-# ROUTES
+# ROUTE HANDLERS
 # --------------------------------------------------------------------
 @app.route('/')
 def index():
@@ -229,6 +228,9 @@ def learn_math():
 def learn_it():
     return render_template('learn/it.html')
 
+# --------------------------------------------------------------------
+# SERVER LAUNCHER
+# --------------------------------------------------------------------
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
