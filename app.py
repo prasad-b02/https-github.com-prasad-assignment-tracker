@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.secret_key = "super_secret_assignment_tracker_key"
 
 # --------------------------------------------------------------------
-# DATABASE SETUP & AUTO-INITIALIZATION FOR RENDER CLOUD
+# DATABASE SETUP & AUTO-SEEDING FOR CLOUD DEPLOYMENT
 # --------------------------------------------------------------------
 def get_db_connection():
     conn = sqlite3.connect('assignments.db')
@@ -15,7 +15,7 @@ def get_db_connection():
     return conn
 
 def init_db():
-    """Automatically creates the assignments table if missing on Render."""
+    """Automatically creates table and seeds sample assignments on Render."""
     conn = get_db_connection()
     conn.execute('''
         CREATE TABLE IF NOT EXISTS assignments (
@@ -31,16 +31,31 @@ def init_db():
             priority_tag TEXT
         )
     ''')
+    
+    # If the database is empty, automatically populate default sample tasks
+    count = conn.execute('SELECT COUNT(*) FROM assignments').fetchone()[0]
+    if count == 0:
+        sample_data = [
+            ("Implement Bubble Sort", "Data Structures & Algorithms", "Unit 2", "2026-07-26", 4.0, "Hard", "Pending", 85, "🔴 HIGH / CRITICAL"),
+            ("Matrix Multiplication Lab", "Applied Mathematics", "Unit 1", "2026-07-30", 2.5, "Medium", "In Progress", 60, "🟡 MEDIUM PRIORITY"),
+            ("Python Flask Setup", "Python Web Dev", "Unit 3", "2026-08-05", 1.5, "Easy", "Pending", 30, "🟢 LOW PRIORITY")
+        ]
+        conn.executemany('''
+            INSERT INTO assignments (title, subject, unit, deadline, estimated_hours, difficulty, status, priority_score, priority_tag)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', sample_data)
+        
     conn.commit()
     conn.close()
 
-# Run database setup immediately when server boots
+# Initialize database right when app boots up
 init_db()
 
 # --------------------------------------------------------------------
 # AI PRIORITY CLASSIFIER ENGINE
 # --------------------------------------------------------------------
 def calculate_priority(deadline_str, estimated_hours, difficulty, subject):
+    """Calculates AI Urgency Priority Score (0-100)."""
     try:
         deadline_date = datetime.strptime(deadline_str, "%Y-%m-%d").date()
         today = datetime.now().date()
@@ -79,6 +94,8 @@ def calculate_priority(deadline_str, estimated_hours, difficulty, subject):
 # --------------------------------------------------------------------
 # APPLICATION ROUTES
 # --------------------------------------------------------------------
+
+# 1. Main Dashboard
 @app.route('/')
 def index():
     conn = get_db_connection()
@@ -101,6 +118,7 @@ def index():
 
     return render_template('index.html', assignments=assignments)
 
+# 2. Add Assignment
 @app.route('/add', methods=['GET', 'POST'])
 def add_assignment():
     if request.method == 'POST':
@@ -127,6 +145,7 @@ def add_assignment():
 
     return render_template('add_assignment.html')
 
+# 3. Edit Assignment
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_assignment(id):
     conn = get_db_connection()
@@ -157,6 +176,7 @@ def edit_assignment(id):
     conn.close()
     return render_template('edit_assignment.html', assignment=assignment)
 
+# 4. Delete Assignment
 @app.route('/delete/<int:id>')
 def delete_assignment(id):
     conn = get_db_connection()
@@ -166,6 +186,7 @@ def delete_assignment(id):
     flash('Assignment deleted.', 'danger')
     return redirect(url_for('index'))
 
+# 5. Analytics
 @app.route('/analytics')
 def analytics():
     conn = get_db_connection()
@@ -183,6 +204,7 @@ def analytics():
     }
     return render_template('analytics.html', stats=stats)
 
+# 6. Profile & Project Guides
 @app.route('/profile')
 def profile():
     return render_template('profile.html')
@@ -191,7 +213,7 @@ def profile():
 def project_guide():
     return render_template('project_guide.html')
 
-# Subject Guide Routes
+# 7. R23 Core Subject Study Guides
 @app.route('/learn')
 def learn_hub():
     return render_template('learn/index.html')
@@ -217,7 +239,7 @@ def learn_it():
     return render_template('learn/it.html')
 
 # --------------------------------------------------------------------
-# SERVER LAUNCHER FOR RENDER
+# SERVER LAUNCHER
 # --------------------------------------------------------------------
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
