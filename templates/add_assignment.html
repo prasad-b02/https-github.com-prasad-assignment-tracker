@@ -3,71 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add New Assignment | Tracker</title>
+    <title>Add Assignment | LearnSync R23</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </head>
 <body>
 
     <div class="sidebar">
-        <h2>📚 Assignment Tracker</h2>
+        <h2>📊 Assignment Tracker</h2>
         <ul class="nav-links">
-            <li><a href="{{ url_for('index') }}">📊 1. Assignment Dashboard</a></li>
-            <li><a href="{{ url_for('analytics') }}">📈 2. Analytics Hub</a></li>
-            <li><a href="{{ url_for('learn_hub') }}">📖 3. R23 Core Concepts</a></li>
-            <li><a href="{{ url_for('project_guide') }}">ℹ️ 4. Project Guide</a></li>
-            <li><a href="{{ url_for('profile') }}">👤 5. User Profile</a></li>
+            <li><a href="{{ url_for('learn_hub') }}">📖 1. Subjects Concepts</a></li>
+            <li><a href="{{ url_for('project_guide') }}">ℹ️ 2. All About Project</a></li>
+            <li><a href="{{ url_for('profile') }}">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('index') }}">📊 4. Assignment Dashboard</a></li>
         </ul>
     </div>
 
     <div class="main-content">
-        <h1>➕ Add New Assignment</h1>
-        <p class="header-sub">Fill out the details below to add a task to your tracker.</p>
-        <hr style="border-color: var(--border-color, #e2e8f0); margin: 1.5rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h1>➕ Add New Assignment</h1>
+            <a href="{{ url_for('index') }}" class="btn-primary" style="background: #3b82f6;">⬅️ Back to Dashboard</a>
+        </div>
 
-        <div class="dashboard-card" style="max-width: 600px;">
+        <div class="dashboard-card" style="max-width: 650px; margin: 2rem auto; padding: 2rem;">
             <form action="{{ url_for('add_assignment') }}" method="POST">
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Assignment Title</label>
-                    <input type="text" name="title" required placeholder="e.g., Implement Bubble Sort" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
+                
+                <h3>Step 1: Subject & Title</h3>
+                <div style="margin-bottom: 1.2rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Subject Name</label>
+                    <input type="text" name="subject" required placeholder="e.g., Python Programming" style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
                 </div>
-
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Subject</label>
-                    <select name="subject" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
-                        <option value="Data Structures & Algorithms">Data Structures & Algorithms</option>
-                        <option value="C Programming">C Programming</option>
-                        <option value="Applied Mathematics">Applied Mathematics</option>
-                        <option value="Python Web Dev">Python Web Dev</option>
-                        <option value="IT Workshop">IT Workshop</option>
-                    </select>
-                </div>
-
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Unit</label>
-                    <input type="text" name="unit" required placeholder="e.g., Unit 1" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
-                </div>
-
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Deadline</label>
-                    <input type="date" name="deadline" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
-                </div>
-
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Estimated Effort (Hours)</label>
-                    <input type="number" step="0.5" name="estimated_hours" required placeholder="e.g., 2.5" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
-                </div>
-
                 <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Difficulty Level</label>
-                    <select name="difficulty" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px;">
-                        <option value="Easy">Easy</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Hard">Hard</option>
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Assignment Title</label>
+                    <input type="text" name="title" required placeholder="e.g., Lab Record Unit 1" style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
+                </div>
+
+                <h3>Step 2: Submission Deadline</h3>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Deadline Date</label>
+                    <input type="date" name="deadline" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
+                </div>
+
+                <h3>Step 3: Select Priority</h3>
+                <div style="margin-bottom: 1.5rem;">
+                    <select name="priority" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
+                        <option value="High">🔴 High Priority</option>
+                        <option value="Medium" selected>🟡 Medium Priority</option>
+                        <option value="Low">🟢 Low Priority</option>
                     </select>
                 </div>
 
-                <button type="submit" class="btn-primary" style="width: 100%; padding: 0.8rem; font-size: 1rem; cursor: pointer;">Save Assignment</button>
+                <h3>Step 4: Status & Save</h3>
+                <div style="margin-bottom: 1.5rem;">
+                    <select name="status" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
+                        <option value="Pending" selected>⏳ Pending</option>
+                        <option value="Completed">✅ Completed</option>
+                        <option value="Postponed">🛑 Postponed</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem; cursor: pointer;">💾 Save Assignment</button>
             </form>
         </div>
     </div>
