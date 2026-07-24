@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applied Mathematics | Assignment Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>📚 Assignment Tracker</h2>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('learn_hub') }}" class="active">📖 1. Subjects Concepts</a></li>
+            <li><a href="{{ url_for('project_guide') }}">ℹ️ 2. All About Project</a></li>
+            <li><a href="{{ url_for('profile_setup') }}">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('index') }}">📊 4. Assignment Dashboard</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <a href="{{ url_for('learn_hub') }}" class="btn-primary" style="background: var(--card-bg); border: 1px solid var(--border-color);">⬅️ Back to Subjects Concepts</a>
+
+        <h1 style="margin-top: 1.5rem;">📐 Unit 3: Applied Mathematics — Matrices</h1>
+        <p class="header-sub">Super Simple Guide on Grids, 2x2 Matrices, and How They Power Our Website Table</p>
+
+        <div class="dashboard-card" style="margin-top: 1.5rem;">
+            <h2>📖 1. What is a Matrix in Simple Words?</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem; line-height: 1.7;">
+                <b>Simple Definition:</b> A <b>Matrix</b> is just a clean grid box with horizontal <b>Rows</b> (left-to-right) and vertical <b>Columns</b> (top-to-bottom).
+                <br><br>
+                <b>Real-World Example:</b> Think of a weekly class timetable or a simple shopping bill table. The lines going across are Rows, and the lines going down are Columns.
+            </p>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>🧩 2. Understanding a 2x2 Matrix (Easy Example)</h2>
+            <p style="color: var(--text-muted); line-height: 1.7; margin-bottom: 1rem;">
+                A <b>2x2 Matrix</b> is a grid with <b>2 Rows</b> and <b>2 Columns</b>. That means it holds a total of <b>4 numbers or items</b>.
+            </p>
+
+            <div style="background: var(--bg-color); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--accent-purple); text-align: center; margin-bottom: 1.2rem;">
+                <h3 style="color: var(--accent-purple); margin-bottom: 0.8rem;">2x2 Marks Grid Example</h3>
+                <div style="font-family: monospace; font-size: 1.2rem; color: var(--text-main); display: inline-block; padding: 1rem 2rem; border-left: 3px solid var(--text-main); border-right: 3px solid var(--text-main); border-radius: 8px; background: rgba(255,255,255,0.02);">
+                    [ 85 &nbsp;&nbsp;&nbsp;&nbsp; 90 ]  ➔  Row 1 (Student A: Maths, Python)<br>
+                    [ 78 &nbsp;&nbsp;&nbsp;&nbsp; 92 ]  ➔  Row 2 (Student B: Maths, Python)
+                </div>
+            </div>
+
+            <div style="line-height: 1.8; color: var(--text-muted);">
+                <p><b style="color: var(--text-main);">1. Top-Left Box (85):</b> Marks of Student A in Maths.</p>
+                <p><b style="color: var(--text-main);">2. Top-Right Box (90):</b> Marks of Student A in Python.</p>
+                <p><b style="color: var(--text-main);">3. Bottom-Left Box (78):</b> Marks of Student B in Maths.</p>
+                <p><b style="color: var(--text-main);">4. Bottom-Right Box (92):</b> Marks of Student B in Python.</p>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>📊 3. How Matrices Work in Our Assignment Tracker</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem; line-height: 1.7;">
+                Our website database stores your assignments as a matrix grid. Look at this small sample assignment table:
+            </p>
+
+            <div style="overflow-x: auto; margin-bottom: 1.5rem;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="background: rgba(139, 92, 246, 0.2); color: var(--accent-purple);">
+                            <th style="padding: 0.8rem; border: 1px solid var(--border-color);">S.No (Col 1)</th>
+                            <th style="padding: 0.8rem; border: 1px solid var(--border-color);">Assignment Name (Col 2)</th>
+                            <th style="padding: 0.8rem; border: 1px solid var(--border-color);">Deadline Date (Col 3)</th>
+                            <th style="padding: 0.8rem; border: 1px solid var(--border-color);">Priority (Col 4)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-blue);">Row 1</td>
+                            <td style="padding: 0.8rem; border: 1px solid var(--border-color);">Python Lab Record</td>
+                            <td style="padding: 0.8rem; border: 1px solid var(--border-color);">2026-07-28</td>
+                            <td style="padding: 0.8rem; border: 1px solid var(--border-color); color: #EF4444; font-weight: bold;">🔴 High</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.8rem; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-blue);">Row 2</td>
+                            <td style="padding: 0.8rem; border: 1px solid var(--border-color);">Maths Unit Quiz</td>
+                            <td style="padding: 0.8rem; border: 1px solid var(--border-color);">2026-07-30</td>
+                            <td style="padding: 0.8rem; border: 1px solid var(--border-color); color: #10B981; font-weight: bold;">🟢 Low</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="background: var(--bg-color); padding: 1.2rem; border-radius: 8px; border-left: 3px solid var(--success); line-height: 1.8; color: var(--text-main);">
+                <h3>💡 Why this Matrix Grid helps our Website:</h3>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">
+                    1. <b>Every Row is One Task:</b> Row 1 holds everything about "Python Lab Record". Row 2 holds everything about "Maths Unit Quiz". Data never mixes up.
+                    <br>
+                    2. <b>Every Column is One Feature:</b> Column 2 lists all assignment names, and Column 3 lists all deadline dates.
+                    <br>
+                    3. <b>Super Fast Searching:</b> If you click "Edit", the website goes straight to Row 1, Column 2 to change "Python Lab Record" instantly!
+                </p>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>❓ Self-Assessment Practice Questions</h2>
+            
+            <div style="margin-bottom: 1.2rem;">
+                <p style="color: var(--text-main); font-weight: 600;">Question 1: What is a Matrix in simple words?</p>
+                <p style="color: var(--text-muted);"><b>Answer:</b> A clean grid made of horizontal rows and vertical columns used to organize information neatly.</p>
+            </div>
+
+            <div style="margin-bottom: 1.2rem;">
+                <p style="color: var(--text-main); font-weight: 600;">Question 2: How do rows and columns help our Assignment Tracker?</p>
+                <p style="color: var(--text-muted);"><b>Answer:</b> Each row holds one assignment entry, and each column holds specific details like Assignment Name or Deadline Date.</p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Workshop & AI Tools | Assignment Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>📚 Assignment Tracker</h2>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('learn_hub') }}" class="active">📖 1. Subjects Concepts</a></li>
+            <li><a href="{{ url_for('project_guide') }}">ℹ️ 2. All About Project</a></li>
+            <li><a href="{{ url_for('profile_setup') }}">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('index') }}">📊 4. Assignment Dashboard</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <a href="{{ url_for('learn_hub') }}" class="btn-primary" style="background: var(--card-bg); border: 1px solid var(--border-color);">⬅️ Back to Subjects Concepts</a>
+
+        <h1 style="margin-top: 1.5rem;">🤖 Unit 5: IT Workshop & Generative AI Tools</h1>
+        <p class="header-sub">Simple Guide on Software Tools, Environment Setups, and AI Coding Support</p>
+
+        <div class="dashboard-card" style="margin-top: 1.5rem;">
+            <h2>📖 1. What is IT Workshop? (Simple 3-Line Definition)</h2>
+            <div style="background: var(--bg-color); padding: 1.2rem; border-radius: 8px; border-left: 3px solid var(--accent-purple); margin-top: 0.8rem; line-height: 1.8; color: var(--text-main);">
+                <b>Line 1:</b> IT Workshop is a practical subject that teaches students how to use software tools like Visual Studio Code, terminal commands, and folder setups.
+                <br>
+                <b>Line 2:</b> It guides students on how operating systems work and how to configure development environments for building real software.
+                <br>
+                <b>Line 3:</b> It also teaches how to use modern Generative AI tools (like ChatGPT) responsibly to fix code bugs and write project documentation.
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>💻 2. How IT Workshop Works in Our Project</h2>
+            <p style="color: var(--text-muted); line-height: 1.7;">
+                IT Workshop principles were used directly to create and run this <b>Assignment Deadline Tracker</b>:
+            </p>
+
+            <ul style="color: var(--text-main); margin-left: 1.5rem; margin-top: 0.8rem; line-height: 1.8;">
+                <li><b>1. Project File Management:</b> Used VS Code to structure files cleanly into <code>templates/</code> (HTML pages) and <code>static/</code> (CSS styles and JS scripts).</li>
+                <li><b>2. Terminal Execution:</b> Used command-line terminal operations (<code>python app.py</code>) to launch the local Flask web server at <code>http://127.0.0.1:5000</code>.</li>
+                <li><b>3. AI Debugging & Styling:</b> Leveraged AI coding tools to debug SQLite database connection errors and write responsive CSS designs for the user dashboard.</li>
+            </ul>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>❓ Self-Assessment Practice Questions</h2>
+            
+            <div style="margin-bottom: 1.2rem;">
+                <p style="color: var(--text-main); font-weight: 600;">Question 1: What is the main purpose of IT Workshop?</p>
+                <p style="color: var(--text-muted);"><b>Answer:</b> To teach practical skills in using development tools, managing terminal commands, and setting up coding environments.</p>
+            </div>
+
+            <div style="margin-bottom: 1.2rem;">
+                <p style="color: var(--text-main); font-weight: 600;">Question 2: How does IT Workshop help in running our web app project?</p>
+                <p style="color: var(--text-muted);"><b>Answer:</b> It provides the folder structure, VS Code editor setup, and terminal commands needed to run the local Flask server smoothly.</p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

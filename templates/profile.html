@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile | Assignment Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>📚 Assignment Tracker</h2>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('learn_hub') }}">📖 1. Subjects Concepts</a></li>
+            <li><a href="{{ url_for('project_guide') }}">ℹ️ 2. All About Project</a></li>
+            <li><a href="{{ url_for('profile_setup') }}" class="active">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('index') }}">📊 4. Assignment Dashboard</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>👤 User Profile & Academic Progress</h1>
+        <p class="header-sub">Manage student credentials and view submission statistics</p>
+        <hr style="border-color: var(--border-color); margin: 1.5rem 0;">
+
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem;">
+            
+            <div class="dashboard-card">
+                <h2>📝 Student Profile Details</h2>
+                <form action="{{ url_for('profile_setup') }}" method="POST" style="margin-top: 1rem;">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.4rem; color: var(--text-muted);">Student Name</label>
+                        <input type="text" name="student_name" value="{{ user[0] if user else '' }}" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.4rem; color: var(--text-muted);">College Name</label>
+                        <input type="text" name="college_name" value="{{ user[1] if user else '' }}" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">
+                    </div>
+
+                    <div style="margin-bottom: 1.2rem;">
+                        <label style="display: block; margin-bottom: 0.4rem; color: var(--text-muted);">Branch Name</label>
+                        <input type="text" name="branch_name" value="{{ user[2] if user else '' }}" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="width: 100%;">💾 Save Profile Details</button>
+                </form>
+            </div>
+
+            <div>
+                <div class="dashboard-card" style="margin-bottom: 1.5rem;">
+                    <h2>📊 Academic Submission Metrics</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; text-align: center;">
+                        <div style="background: var(--bg-color); padding: 1rem; border-radius: 8px;">
+                            <h3 style="color: var(--accent-blue); font-size: 1.8rem;">{{ total }}</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem;">Total Assignments</p>
+                        </div>
+
+                        <div style="background: var(--bg-color); padding: 1rem; border-radius: 8px;">
+                            <h3 style="color: var(--success); font-size: 1.8rem;">{{ completed }}</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem;">Completed</p>
+                        </div>
+
+                        <div style="background: var(--bg-color); padding: 1rem; border-radius: 8px;">
+                            <h3 style="color: var(--warning); font-size: 1.8rem;">{{ pending }}</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem;">Pending</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+                            <span style="color: var(--text-main); font-weight: 600;">Completion Rate</span>
+                            <span style="color: var(--accent-purple); font-weight: 600;">{{ completion_rate }}%</span>
+                        </div>
+                        <div style="width: 100%; background: var(--bg-color); height: 12px; border-radius: 6px; overflow: hidden;">
+                            <div style="width: {{ completion_rate }}%; background: var(--accent-purple); height: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem; text-align: center; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <h3 style="color: var(--text-main); font-size: 1rem; margin-bottom: 1rem;">📈 Visual Distribution Chart</h3>
+                        <div style="max-width: 250px; margin: 0 auto;">
+                            <canvas id="assignmentChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('assignmentChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Pending', 'Postponed'],
+                    datasets: [{
+                        data: [{{ completed if completed else 0 }}, {{ pending if pending else 0 }}, {{ postponed if postponed else 0 }}],
+                        backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#94A3B8', font: { size: 12 } } }
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

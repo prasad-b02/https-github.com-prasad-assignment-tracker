@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C Programming & Algorithmic Logic | Assignment Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>📚 Assignment Tracker</h2>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('learn_hub') }}" class="active">📖 1. Subjects Concepts</a></li>
+            <li><a href="{{ url_for('project_guide') }}">ℹ️ 2. All About Project</a></li>
+            <li><a href="{{ url_for('profile_setup') }}">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('index') }}">📊 4. Assignment Dashboard</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <a href="{{ url_for('learn_hub') }}" class="btn-primary" style="background: var(--card-bg); border: 1px solid var(--border-color);">⬅️ Back to Subjects Concepts</a>
+
+        <h1 style="margin-top: 1.5rem;">⚙️ Unit 4: C Programming & Algorithmic Logic</h1>
+        <p class="header-sub">Beginner-Friendly Textbook Guide on Basic Logic and Step-by-Step Execution</p>
+
+        <div class="dashboard-card" style="margin-top: 1.5rem;">
+            <h2>📖 1. What is C Language? (Simple Definition)</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem; line-height: 1.7;">
+                <b>Simple Definition:</b> <b>C Language</b> is one of the oldest, most foundational computer programming languages. It acts as the <b>mother of modern programming languages</b> because almost all modern languages (like Python, C++, and Java) borrowed their basic syntax and logic structures from C.
+                <br><br>
+                <b>Real-World Analogy:</b> 
+                Think of C language like learning how a car engine works from the inside. While driving an automatic car is easy, knowing how the engine components connect helps you understand how the whole vehicle functions. C teaches you how computer memory and instructions work at the deepest level.
+            </p>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>🧩 2. What is an Algorithm? (Easy Explanation)</h2>
+            <p style="color: var(--text-muted); line-height: 1.7;">
+                <b>Simple Definition:</b> An <b>Algorithm</b> is simply a <b>step-by-step set of instructions</b> written in plain order to solve a specific problem.
+                <br><br>
+                <b>Real-World Example (Making Tea):</b>
+                <br>• Step 1: Take a pot and add water.
+                <br>• Step 2: Turn on the stove and boil the water.
+                <br>• Step 3: Add tea powder and sugar.
+                <br>• Step 4: Pour milk and boil for 2 minutes.
+                <br>• Step 5: Filter the tea into a cup and serve.
+                <br><br>
+                If you skip Step 2 or do Step 5 before Step 1, the result fails! In programming, computers follow instructions step-by-step in the exact same logical order.
+            </p>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>💻 3. How C Programming Logic is Used in Our Assignment Tracker</h2>
+            <p style="color: var(--text-muted); line-height: 1.7;">
+                In our <b>Assignment Deadline Tracker</b> project, C programming logic forms the step-by-step algorithm executed whenever a student adds a new assignment:
+            </p>
+
+            <div style="background: var(--bg-color); padding: 1.2rem; border-radius: 8px; border-left: 3px solid var(--accent-purple); margin: 1rem 0; color: var(--text-main); font-family: monospace; line-height: 1.6;">
+                Step-by-Step System Algorithm:<br>
+                -----------------------------------<br>
+                Step 1: Open the "Add Assignment" form.<br>
+                Step 2: Read user inputs (Subject, Title, Deadline, Priority, Status).<br>
+                Step 3: Check IF inputs are empty.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF empty ➔ Show warning alert.<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF valid ➔ Proceed to Step 4.<br>
+                Step 4: Connect to SQLite database file.<br>
+                Step 5: Save record into assignments table.<br>
+                Step 6: Refresh Dashboard and show updated list.
+            </div>
+
+            <p style="color: var(--text-muted); line-height: 1.7;">
+                <b>Why this helps:</b>
+                Without strict step-by-step algorithmic logic, the computer would attempt to save data into the database before the user even types the assignment details, causing system crashes!
+            </p>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>❓ Self-Assessment Practice Questions</h2>
+            
+            <div style="margin-bottom: 1.2rem;">
+                <p style="color: var(--text-main); font-weight: 600;">Question 1: What is C Language in simple terms?</p>
+                <p style="color: var(--text-muted);"><b>Answer:</b> C Language is a foundational programming language that teaches core computer logic, memory management, and step-by-step execution.</p>
+            </div>
+
+            <div style="margin-bottom: 1.2rem;">
+                <p style="color: var(--text-main); font-weight: 600;">Question 2: What is an Algorithm?</p>
+                <p style="color: var(--text-muted);"><b>Answer:</b> An algorithm is a step-by-step sequence of instructions followed to solve a problem or complete a task.</p>
+            </div>
+
+            <div style="margin-bottom: 1.2rem;">
+                <p style="color: var(--text-main); font-weight: 600;">Question 3: How does algorithmic thinking help in our Assignment Deadline Tracker?</p>
+                <p style="color: var(--text-muted);"><b>Answer:</b> It ensures that the application processes form inputs, checks for empty fields, saves records to the database, and updates the table in the exact correct order.</p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

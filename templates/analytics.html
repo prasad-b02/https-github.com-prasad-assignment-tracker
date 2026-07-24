@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Progress Analytics | LearnSync R23</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🎓 LearnSync R23</h2>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('index') }}">📊 Dashboard Table</a></li>
+            <li><a href="{{ url_for('profile_setup') }}">👤 User Profile & Graphs</a></li>
+            <li><a href="{{ url_for('learn_hub') }}">📖 R23 Syllabus Hub</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>📈 Progress Analytics</h1>
+        <p class="header-sub">Student Profile: <b>{{ student_name }}</b></p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+            <div class="dashboard-card">
+                <h2>📊 Task Distribution Graph</h2>
+                <div style="margin-top: 1.5rem;">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>🎯 Completion Ratio</h2>
+                <div style="margin-top: 1.5rem; max-height: 280px; display: flex; justify-content: center;">
+                    <canvas id="doughnutChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const completedCount = {{ completed }};
+        const pendingCount = {{ pending }};
+        const postponedCount = {{ postponed }};
+
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['Completed', 'Pending', 'Postponed'],
+                datasets: [{
+                    data: [completedCount, pendingCount, postponedCount],
+                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                    borderRadius: 6
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } } }
+        });
+
+        const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
+        new Chart(ctxDoughnut, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'Pending', 'Postponed'],
+                datasets: [{ data: [completedCount, pendingCount, postponedCount], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'] }]
+            },
+            options: { responsive: true, plugins: { legend: { labels: { color: '#f8fafc' } } } }
+        });
+    </script>
+</body>
+</html>

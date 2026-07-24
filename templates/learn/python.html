@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Programming | Assignment Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>📚 Assignment Tracker</h2>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('learn_hub') }}" class="active">📖 1. Subjects Concepts</a></li>
+            <li><a href="{{ url_for('project_guide') }}">ℹ️ 2. All About Project</a></li>
+            <li><a href="{{ url_for('profile_setup') }}">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('index') }}">📊 4. Assignment Dashboard</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <a href="{{ url_for('learn_hub') }}" class="btn-primary" style="background: var(--card-bg); border: 1px solid var(--border-color);">⬅️ Back to Subjects Concepts</a>
+
+        <h1 style="margin-top: 1.5rem;">🐍 Unit 1: Python Programming</h1>
+        <p class="header-sub">Detailed Beginner Guide & Real-World Application</p>
+
+        <div class="dashboard-card" style="margin-top: 1.5rem;">
+            <h2>📖 1. What is Python Programming?</h2>
+            <p style="color: var(--text-muted); margin-top: 0.5rem; line-height: 1.7;">
+                <b>Deep Explanation:</b> Computers operate exclusively on binary machine language—streams of 0s and 1s. Writing raw binary instructions is extremely complex for humans. A programming language acts as an intermediary interface.
+                <br><br>
+                Python is a <b>high-level, interpreted programming language</b>:
+                <br>• <b>High-Level:</b> It uses simple, human-readable words (like <code>if</code>, <code>print</code>, <code>for</code>, <code>return</code>) instead of complex machine instructions.
+                <br>• <b>Interpreted:</b> Python reads, translates, and executes code <b>line-by-line</b> at runtime through the Python Interpreter.
+            </p>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>📝 2. Fundamental Python Concepts</h2>
+            <pre style="background: var(--bg-color); padding: 1.2rem; border-radius: 8px; color: var(--accent-blue); margin-top: 1rem; font-size: 0.95rem; font-family: monospace;">
+# --- Python Variable Storage & Decision Logic ---
+assignment_name = "Python Lab Record"
+days_remaining = 2
+
+if days_remaining <= 2:
+    status_alert = "🔴 Urgent! Submit immediately."
+else:
+    status_alert = "🟢 Plenty of time remaining."
+
+print("Assignment:", assignment_name)
+print("Notice:", status_alert)
+            </pre>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>❓ Self-Assessment Practice Questions</h2>
+            <div style="margin-bottom: 1.2rem;">
+                <p style="color: var(--text-main); font-weight: 600;">Q1: What does it mean that Python is an "interpreted" language?</p>
+                <p style="color: var(--text-muted);"><b>Answer:</b> Python translates and executes code line-by-line at runtime through the Python Interpreter.</p>
+            </div>
+            <div>
+                <p style="color: var(--text-main); font-weight: 600;">Q2: What role does Flask play in our Python project?</p>
+                <p style="color: var(--text-muted);"><b>Answer:</b> Flask is a web framework that handles page routing and database interactions.</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

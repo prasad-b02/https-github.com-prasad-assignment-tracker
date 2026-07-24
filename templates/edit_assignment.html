@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Assignment | Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>📚 Assignment Tracker</h2>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('learn_hub') }}">📖 1. Subjects Concepts</a></li>
+            <li><a href="{{ url_for('project_guide') }}">ℹ️ 2. All About Project</a></li>
+            <li><a href="{{ url_for('profile_setup') }}">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('index') }}" class="active">📊 4. Assignment Dashboard</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>✏️ Edit Assignment</h1>
+        <p class="header-sub">Update details for this assignment</p>
+        <hr style="border-color: var(--border-color); margin: 1.5rem 0;">
+
+        <div class="dashboard-card" style="max-width: 600px;">
+            <form action="{{ url_for('edit_assignment', id=assignment[0]) }}" method="POST">
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.4rem; color: var(--text-muted);">Subject Name</label>
+                    <input type="text" name="subject" value="{{ assignment[1] }}" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.4rem; color: var(--text-muted);">Assignment Title</label>
+                    <input type="text" name="title" value="{{ assignment[2] }}" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.4rem; color: var(--text-muted);">Deadline Date (Present & Future Only)</label>
+                    <input type="date" name="deadline" value="{{ assignment[3] }}" min="2026-07-23" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.4rem; color: var(--text-muted);">Priority Level</label>
+                    <select name="priority" style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">
+                        <option value="High" {% if assignment[4] == 'High' %}selected{% endif %}>🔴 High Priority</option>
+                        <option value="Medium" {% if assignment[4] == 'Medium' %}selected{% endif %}>🟡 Medium Priority</option>
+                        <option value="Low" {% if assignment[4] == 'Low' %}selected{% endif %}>🟢 Low Priority</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.4rem; color: var(--text-muted);">Submission Status</label>
+                    <select name="status" style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">
+                        <option value="Pending" {% if assignment[5] == 'Pending' %}selected{% endif %}>⏳ Pending</option>
+                        <option value="Completed" {% if assignment[5] == 'Completed' %}selected{% endif %}>✅ Completed</option>
+                        <option value="Postponed" {% if assignment[5] == 'Postponed' %}selected{% endif %}>🛑 Postponed</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">💾 Update Assignment</button>
+                    <a href="{{ url_for('index') }}" style="padding: 0.8rem 1.2rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-muted); text-decoration: none; text-align: center;">Cancel</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

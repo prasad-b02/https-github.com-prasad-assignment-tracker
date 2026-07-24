@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subjects Concepts | Assignment Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>📚 Assignment Tracker</h2>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('learn_hub') }}" class="active">📖 1. Subjects Concepts</a></li>
+            <li><a href="{{ url_for('project_guide') }}">ℹ️ 2. All About Project</a></li>
+            <li><a href="{{ url_for('profile_setup') }}">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('index') }}">📊 4. Assignment Dashboard</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>📖 Page 1: R23 Core Subjects Concepts Hub</h1>
+        <p class="header-sub">Learn core engineering concepts and see how they power this Assignment Tracker</p>
+        <hr style="border-color: var(--border-color); margin: 1.5rem 0;">
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            
+            <div class="dashboard-card">
+                <h2>🐍 Unit 1: Python Programming</h2>
+                <p style="color: var(--text-muted); margin: 0.8rem 0; line-height: 1.6;">
+                    Learn variables, data types, logic statements, and how Python acts as the Flask backend engine connecting browser forms to SQLite database tables.
+                </p>
+                <a href="{{ url_for('learn_python') }}" class="btn-primary" style="display: inline-block; margin-top: 0.5rem;">Read Unit 1 ➔</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>💻 Unit 2: Data Structures & Sorting</h2>
+                <p style="color: var(--text-muted); margin: 0.8rem 0; line-height: 1.6;">
+                    Explore memory containers, linear vs non-linear structures, and 3 core sorting algorithms (Bubble, Selection, Insertion) used to organize assignment deadlines.
+                </p>
+                <a href="{{ url_for('learn_dsa') }}" class="btn-primary" style="display: inline-block; margin-top: 0.5rem;">Read Unit 2 ➔</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>📐 Unit 3: Applied Mathematics (Matrices)</h2>
+                <p style="color: var(--text-muted); margin: 0.8rem 0; line-height: 1.6;">
+                    Understand 2D matrix grids, row-by-column order, student score matrix examples, matrix addition, and how relational database tables map to matrices.
+                </p>
+                <a href="{{ url_for('learn_math') }}" class="btn-primary" style="display: inline-block; margin-top: 0.5rem;">Read Unit 3 ➔</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>⚙️ Unit 4: C Programming & Logic</h2>
+                <p style="color: var(--text-muted); margin: 0.8rem 0; line-height: 1.6;">
+                    Master step-by-step algorithmic logic, real-life recipe steps, and how step-by-step algorithms validate form inputs before saving to database records.
+                </p>
+                <a href="{{ url_for('learn_c') }}" class="btn-primary" style="display: inline-block; margin-top: 0.5rem;">Read Unit 4 ➔</a>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>🤖 Unit 5: IT Workshop & AI Tools</h2>
+                <p style="color: var(--text-muted); margin: 0.8rem 0; line-height: 1.6;">
+                    Learn about local development tools (VS Code, terminal execution, folder layouts) and using generative AI tools responsibly for debugging web code.
+                </p>
+                <a href="{{ url_for('learn_it') }}" class="btn-primary" style="display: inline-block; margin-top: 0.5rem;">Read Unit 5 ➔</a>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

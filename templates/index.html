@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Dashboard | Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>📚 Assignment Tracker</h2>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('learn_hub') }}">📖 1. Subjects Concepts</a></li>
+            <li><a href="{{ url_for('project_guide') }}">ℹ️ 2. All About Project</a></li>
+            <li><a href="{{ url_for('profile_setup') }}">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('index') }}" class="active">📊 4. Assignment Dashboard</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+                <h1>📊 Assignment Dashboard</h1>
+                <p class="header-sub">Welcome back, <strong>{{ student_name }}</strong> ({{ branch_name }} - {{ college_name }})</p>
+            </div>
+            <a href="{{ url_for('add_assignment') }}" class="btn-primary">➕ Add New Assignment</a>
+        </div>
+        <hr style="border-color: var(--border-color); margin: 1.5rem 0;">
+
+        <div class="dashboard-card">
+            <h2>📝 Active Assignments List</h2>
+            
+            {% if assignments %}
+            <div class="table-container">
+                <table style="width: 100%; margin-top: 1rem;">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Subject</th>
+                            <th>Title</th>
+                            <th>Deadline</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr>
+                            <td style="font-weight: bold; color: var(--accent-blue);">{{ loop.index }}</td>
+                            <td>{{ assignment[1] }}</td>
+                            <td>{{ assignment[2] }}</td>
+                            <td>{{ assignment[3] }}</td>
+                            <td>
+                                {% if assignment[4] == 'High' %}
+                                    <span style="background: rgba(239, 68, 68, 0.2); color: #EF4444; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">🔴 High</span>
+                                {% elif assignment[4] == 'Medium' %}
+                                    <span style="background: rgba(245, 158, 11, 0.2); color: #F59E0B; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">🟡 Medium</span>
+                                {% else %}
+                                    <span style="background: rgba(16, 185, 129, 0.2); color: #10B981; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">🟢 Low</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if assignment[5] == 'Completed' %}
+                                    <span style="color: var(--success); font-weight: 600;">✅ Completed</span>
+                                {% elif assignment[5] == 'Pending' %}
+                                    <span style="color: var(--warning); font-weight: 600;">⏳ Pending</span>
+                                {% else %}
+                                    <span style="color: var(--danger); font-weight: 600;">🛑 Postponed</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;">
+                                <a href="{{ url_for('edit_assignment', id=assignment[0]) }}" style="color: var(--accent-blue); text-decoration: none; margin-right: 0.8rem; font-weight: 600;">✏️ Edit</a>
+                                <a href="{{ url_for('delete_assignment', id=assignment[0]) }}" onclick="return confirmDelete();" style="color: var(--danger); text-decoration: none; font-weight: 600;">🗑️ Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="color: var(--text-muted); margin-top: 1rem;">No assignments found! Click "Add New Assignment" above to get started.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>

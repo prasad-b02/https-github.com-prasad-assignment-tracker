@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Performance | LearnSync R23</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🎓 LearnSync R23</h2>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('index') }}">📊 Dashboard Table</a></li>
+            <li><a href="{{ url_for('profile_setup') }}">👤 User Profile & Graphs</a></li>
+            <li><a href="{{ url_for('learn_hub') }}">📖 R23 Syllabus Hub</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>🏆 Student Profile Performance</h1>
+        <p class="header-sub">Student Name: <b>{{ student_name }}</b> | KIET Korangi B.Tech CSE (AI & ML)</p>
+
+        <div class="dashboard-card" style="margin-top: 1.5rem;">
+            <h2>📈 Performance Timeline Chart</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Track completion status across scheduled deadlines.</p>
+            <canvas id="timelineChart" style="max-height: 250px;"></canvas>
+        </div>
+    </div>
+
+    <script>
+        const labels = [{% for a in assignments %}"{{ a[3] }}",{% endfor %}];
+        const statusData = [{% for a in assignments %}{% if a[5] == 'Completed' %} 100 {% else %} 30 {% endif %},{% endfor %}];
+
+        const ctx = document.getElementById('timelineChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Task Completion Score (%)',
+                    data: statusData,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 100, ticks: { color: '#94a3b8' } },
+                    x: { ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
