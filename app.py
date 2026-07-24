@@ -3,7 +3,7 @@ import sqlite3
 from flask import Flask, abort, render_template, request, redirect, url_for
 
 app = Flask(__name__)
-app.secret_key = "super_secret_assignment_tracker_key"
+app.secret_key = os.environ.get("SECRET_KEY", "super_secret_assignment_tracker_key")
 
 # --------------------------------------------------------------------
 # DATABASE INITIALIZATION
