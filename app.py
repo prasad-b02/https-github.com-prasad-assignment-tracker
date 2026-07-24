@@ -1,5 +1,7 @@
 import os
 import sqlite3
+import threading
+import webbrowser
 from datetime import date
 from flask import Flask, abort, render_template, request, redirect, url_for
 
@@ -311,4 +313,5 @@ def delete_assignment(id):
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
+    threading.Timer(1.0, lambda: webbrowser.open_new(f"http://127.0.0.1:{port}/dashboard")).start()
     app.run(host='0.0.0.0', port=port, debug=False)
