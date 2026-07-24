@@ -100,7 +100,7 @@ def project_guide():
 # PAGE 3: USER PROFILE & METRICS
 # --------------------------------------------------------------------
 @app.route('/profile', methods=['GET', 'POST'])
-@app.route('/profile_setup', methods=['GET', 'POST'])
+@app.route('/profile_setup', endpoint='profile_setup', methods=['GET', 'POST'])
 def profile():
     conn = get_db_connection()
     if request.method == 'POST':
