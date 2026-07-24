@@ -6,31 +6,49 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 app = Flask(__name__)
 app.secret_key = "super_secret_assignment_tracker_key"
 
-# Database Connection Helper
+# --------------------------------------------------------------------
+# DATABASE SETUP & AUTO-INITIALIZATION FOR RENDER CLOUD
+# --------------------------------------------------------------------
 def get_db_connection():
     conn = sqlite3.connect('assignments.db')
     conn.row_factory = sqlite3.Row
     return conn
 
+def init_db():
+    """Automatically creates the assignments table if missing on Render."""
+    conn = get_db_connection()
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS assignments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            unit TEXT NOT NULL,
+            deadline TEXT NOT NULL,
+            estimated_hours REAL NOT NULL,
+            difficulty TEXT NOT NULL,
+            status TEXT NOT NULL,
+            priority_score INTEGER,
+            priority_tag TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Run database setup immediately when server boots
+init_db()
+
 # --------------------------------------------------------------------
-# AI PRIORITY CLASSIFIER ENGINE (MATHEMATICAL MODEL)
+# AI PRIORITY CLASSIFIER ENGINE
 # --------------------------------------------------------------------
 def calculate_priority(deadline_str, estimated_hours, difficulty, subject):
-    """
-    Computes an AI Urgency Priority Score from 0 to 100 based on:
-    - Days remaining until deadline
-    - Estimated effort hours
-    - Subject difficulty & R23 core academic weight
-    """
     try:
         deadline_date = datetime.strptime(deadline_str, "%Y-%m-%d").date()
         today = datetime.now().date()
         days_remaining = (deadline_date - today).days
 
         if days_remaining < 0:
-            days_remaining = 0  # Overdue tasks treat days remaining as 0
+            days_remaining = 0
 
-        # Subject Difficulty Weights
         weights = {
             "Data Structures & Algorithms": 1.5,
             "C Programming": 1.4,
@@ -39,17 +57,13 @@ def calculate_priority(deadline_str, estimated_hours, difficulty, subject):
             "IT Workshop": 1.0
         }
         subject_weight = weights.get(subject, 1.1)
-
-        # Effort Weight
         effort_factor = float(estimated_hours) * 5.0
 
-        # Urgency Calculation
         urgency_component = (100.0 / (days_remaining + 1.0)) * 0.50
         effort_component = effort_factor * subject_weight
 
         priority_score = min(100, int(urgency_component + effort_component))
 
-        # Priority Tag Classification
         if priority_score >= 75:
             priority_tag = "🔴 HIGH / CRITICAL"
         elif priority_score >= 45:
@@ -59,14 +73,12 @@ def calculate_priority(deadline_str, estimated_hours, difficulty, subject):
 
         return priority_score, priority_tag, days_remaining
 
-    except Exception as e:
+    except Exception:
         return 50, "🟡 MEDIUM PRIORITY", 3
 
 # --------------------------------------------------------------------
 # APPLICATION ROUTES
 # --------------------------------------------------------------------
-
-# 1. Main Dashboard Route
 @app.route('/')
 def index():
     conn = get_db_connection()
@@ -89,7 +101,6 @@ def index():
 
     return render_template('index.html', assignments=assignments)
 
-# 2. Add Assignment Route
 @app.route('/add', methods=['GET', 'POST'])
 def add_assignment():
     if request.method == 'POST':
@@ -116,7 +127,6 @@ def add_assignment():
 
     return render_template('add_assignment.html')
 
-# 3. Edit Assignment Route
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_assignment(id):
     conn = get_db_connection()
@@ -147,7 +157,6 @@ def edit_assignment(id):
     conn.close()
     return render_template('edit_assignment.html', assignment=assignment)
 
-# 4. Delete Assignment Route
 @app.route('/delete/<int:id>')
 def delete_assignment(id):
     conn = get_db_connection()
@@ -157,7 +166,6 @@ def delete_assignment(id):
     flash('Assignment deleted.', 'danger')
     return redirect(url_for('index'))
 
-# 5. Analytics Route
 @app.route('/analytics')
 def analytics():
     conn = get_db_connection()
@@ -175,17 +183,15 @@ def analytics():
     }
     return render_template('analytics.html', stats=stats)
 
-# 6. Profile Route
 @app.route('/profile')
 def profile():
     return render_template('profile.html')
 
-# 7. Project Guide Route
 @app.route('/project_guide')
 def project_guide():
     return render_template('project_guide.html')
 
-# 8. R23 Core Subject Guides Routes
+# Subject Guide Routes
 @app.route('/learn')
 def learn_hub():
     return render_template('learn/index.html')
@@ -211,10 +217,8 @@ def learn_it():
     return render_template('learn/it.html')
 
 # --------------------------------------------------------------------
-# SERVER LAUNCHER (CONFIGURED FOR LOCAL & RENDER CLOUD DEPLOYMENT)
+# SERVER LAUNCHER FOR RENDER
 # --------------------------------------------------------------------
 if __name__ == '__main__':
-    # Reads the environment port assigned by Render dynamically, defaulting to 5000 locally
     port = int(os.environ.get("PORT", 5000))
-    # Binds to 0.0.0.0 so Render cloud services can detect and open public web ports
     app.run(host='0.0.0.0', port=port, debug=False)
