@@ -38,7 +38,7 @@
                 <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
                     <thead>
                         <tr style="text-align: left; border-bottom: 2px solid #2d3748;">
-                            <th style="padding: 0.8rem;">ID</th>
+                            <th style="padding: 0.8rem;">NO.</th>
                             <th style="padding: 0.8rem;">SUBJECT</th>
                             <th style="padding: 0.8rem;">TITLE</th>
                             <th style="padding: 0.8rem;">DEADLINE</th>
@@ -50,7 +50,7 @@
                     <tbody>
                         {% for assignment in assignments %}
                         <tr style="border-bottom: 1px solid #1e293b;">
-                            <td style="padding: 0.8rem; font-weight: bold; color: #60a5fa;">{{ assignment.id }}</td>
+                            <td style="padding: 0.8rem; font-weight: bold; color: #60a5fa;">{{ loop.index }}</td>
                             <td style="padding: 0.8rem; font-weight: 600;">{{ assignment.subject }}</td>
                             <td style="padding: 0.8rem;">{{ assignment.title }}</td>
                             <td style="padding: 0.8rem;">{{ assignment.deadline }}</td>
