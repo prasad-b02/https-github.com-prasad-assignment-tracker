@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from datetime import date
 from flask import Flask, abort, render_template, request, redirect, url_for
 
 app = Flask(__name__)
@@ -85,6 +86,15 @@ def get_student_profile():
     except Exception:
         pass
     return "prakash", "CSE(AIML)", "kiet korngi", ("prakash", "kiet korngi", "CSE(AIML)")
+
+def validate_deadline(value):
+    try:
+        deadline = date.fromisoformat(value)
+    except (TypeError, ValueError):
+        return "Enter a valid deadline date."
+    if deadline < date.today():
+        return "Deadline cannot be in the past. Choose today or a future date."
+    return None
 
 # --------------------------------------------------------------------
 # PAGE 1: SUBJECTS CONCEPTS HUB (DEFAULT HOME PAGE)
@@ -198,9 +208,13 @@ def add_assignment():
         # Extracts data from any field names used in your HTML form
         subject = request.form.get('subject') or request.form.get('subject_name') or 'Python'
         title = request.form.get('title') or request.form.get('assignment_title') or 'Assignment'
-        deadline = request.form.get('deadline') or request.form.get('deadline_date') or '2026-08-01'
+        deadline = request.form.get('deadline') or request.form.get('deadline_date') or ''
         priority = request.form.get('priority') or 'Medium'
         status = request.form.get('status') or 'Pending'
+
+        deadline_error = validate_deadline(deadline)
+        if deadline_error:
+            return render_template('add_assignment.html', deadline_error=deadline_error, form_data=request.form, today=date.today().isoformat()), 400
 
         conn = get_db_connection()
         conn.execute('''
@@ -213,7 +227,7 @@ def add_assignment():
         # Redirects straight to the dashboard table to show your newly saved assignment
         return redirect(url_for('dashboard'))
 
-    return render_template('add_assignment.html')
+    return render_template('add_assignment.html', today=date.today().isoformat())
 
 # --------------------------------------------------------------------
 # EDIT & DELETE HANDLERS
@@ -234,6 +248,11 @@ def edit_assignment(id):
         priority = request.form.get('priority')
         status = request.form.get('status')
 
+        deadline_error = validate_deadline(deadline)
+        if deadline_error:
+            conn.close()
+            return render_template('edit_assignment.html', assignment=assignment, deadline_error=deadline_error, today=date.today().isoformat()), 400
+
         conn.execute('''
             UPDATE assignments
             SET subject = ?, title = ?, deadline = ?, priority = ?, status = ?
@@ -245,7 +264,7 @@ def edit_assignment(id):
         return redirect(url_for('dashboard'))
 
     conn.close()
-    return render_template('edit_assignment.html', assignment=assignment)
+    return render_template('edit_assignment.html', assignment=assignment, today=date.today().isoformat())
 
 @app.route('/delete/<int:id>')
 def delete_assignment(id):

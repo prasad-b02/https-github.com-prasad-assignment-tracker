@@ -40,7 +40,10 @@
                 <h3 style="margin-bottom: 1rem; color: #60a5fa;">Step 2: Submission Deadline</h3>
                 <div style="margin-bottom: 1.5rem;">
                     <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Deadline Date</label>
-                    <input type="date" name="deadline" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
+                    {% if deadline_error %}
+                    <p style="color: #f87171; margin-bottom: 0.5rem;">{{ deadline_error }}</p>
+                    {% endif %}
+                    <input type="date" name="deadline" min="{{ today }}" value="{{ form_data.get('deadline', '') if form_data else '' }}" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
                 </div>
 
                 <h3 style="margin-bottom: 1rem; color: #60a5fa;">Step 3: Select Priority</h3>

@@ -38,7 +38,10 @@
 
                 <div style="margin-bottom: 1rem;">
                     <label style="display: block; margin-bottom: 0.4rem; color: var(--text-muted);">Deadline Date (Present & Future Only)</label>
-                    <input type="date" name="deadline" value="{{ assignment[3] }}" min="2026-07-23" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">
+                    {% if deadline_error %}
+                    <p style="color: #f87171; margin-bottom: 0.5rem;">{{ deadline_error }}</p>
+                    {% endif %}
+                    <input type="date" name="deadline" value="{{ assignment[3] }}" min="{{ today }}" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">
                 </div>
 
                 <div style="margin-bottom: 1rem;">
