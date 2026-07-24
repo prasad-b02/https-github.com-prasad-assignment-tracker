@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Assignment | LearnSync R23</title>
+    <title>Add Assignment | Assignment Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </head>
 <body>
 
@@ -28,7 +27,7 @@
         <div class="dashboard-card" style="max-width: 650px; margin: 2rem auto; padding: 2rem;">
             <form action="{{ url_for('add_assignment') }}" method="POST">
                 
-                <h3>Step 1: Subject & Title</h3>
+                <h3 style="margin-bottom: 1rem; color: #60a5fa;">Step 1: Subject & Title</h3>
                 <div style="margin-bottom: 1.2rem;">
                     <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Subject Name</label>
                     <input type="text" name="subject" required placeholder="e.g., Python Programming" style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
@@ -38,13 +37,13 @@
                     <input type="text" name="title" required placeholder="e.g., Lab Record Unit 1" style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
                 </div>
 
-                <h3>Step 2: Submission Deadline</h3>
+                <h3 style="margin-bottom: 1rem; color: #60a5fa;">Step 2: Submission Deadline</h3>
                 <div style="margin-bottom: 1.5rem;">
                     <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Deadline Date</label>
                     <input type="date" name="deadline" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
                 </div>
 
-                <h3>Step 3: Select Priority</h3>
+                <h3 style="margin-bottom: 1rem; color: #60a5fa;">Step 3: Select Priority</h3>
                 <div style="margin-bottom: 1.5rem;">
                     <select name="priority" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
                         <option value="High">🔴 High Priority</option>
@@ -53,7 +52,7 @@
                     </select>
                 </div>
 
-                <h3>Step 4: Status & Save</h3>
+                <h3 style="margin-bottom: 1rem; color: #60a5fa;">Step 4: Status & Save</h3>
                 <div style="margin-bottom: 1.5rem;">
                     <select name="status" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
                         <option value="Pending" selected>⏳ Pending</option>

@@ -25,12 +25,11 @@ def init_db():
             title TEXT NOT NULL,
             deadline TEXT NOT NULL,
             priority TEXT NOT NULL,
-            status TEXT NOT NULL,
-            unit TEXT DEFAULT 'Unit 1'
+            status TEXT NOT NULL
         )
     ''')
 
-    # Create profile table
+    # Create student profile table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS profile (
             id INTEGER PRIMARY KEY DEFAULT 1,
@@ -40,7 +39,7 @@ def init_db():
         )
     ''')
 
-    # Default profile
+    # Default profile setup if empty
     cursor.execute('SELECT COUNT(*) FROM profile')
     if cursor.fetchone()[0] == 0:
         cursor.execute("INSERT INTO profile (id, name, college, branch) VALUES (1, 'prakash', 'kiet korngi', 'CSE(AIML)')")
@@ -50,14 +49,13 @@ def init_db():
 
 init_db()
 
-# Helper for user profile
 def get_student_profile():
     conn = get_db_connection()
     user = conn.execute('SELECT name, college, branch FROM profile WHERE id = 1').fetchone()
     conn.close()
     if user:
         return user['name'], user['branch'], user['college'], user
-    return "Student", "CSE", "College", ("Student", "College", "CSE")
+    return "prakash", "CSE(AIML)", "kiet korngi", ("prakash", "kiet korngi", "CSE(AIML)")
 
 # --------------------------------------------------------------------
 # ROUTES
@@ -74,21 +72,23 @@ def index():
 @app.route('/add', methods=['GET', 'POST'])
 def add_assignment():
     if request.method == 'POST':
-        title = request.form.get('title') or request.form.get('assignment_title') or 'Assignment'
+        # Accept field names from both simple & multi-step forms
         subject = request.form.get('subject') or request.form.get('subject_name') or 'General'
-        unit = request.form.get('unit') or 'Unit 1'
-        deadline = request.form.get('deadline') or '2026-08-01'
+        title = request.form.get('title') or request.form.get('assignment_title') or 'Untitled'
+        deadline = request.form.get('deadline') or request.form.get('deadline_date') or '2026-08-01'
         priority = request.form.get('priority') or 'Medium'
         status = request.form.get('status') or 'Pending'
 
+        # Insert directly into SQLite database
         conn = get_db_connection()
         conn.execute('''
-            INSERT INTO assignments (subject, title, deadline, priority, status, unit)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (subject, title, deadline, priority, status, unit))
+            INSERT INTO assignments (subject, title, deadline, priority, status)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (subject, title, deadline, priority, status))
         conn.commit()
         conn.close()
 
+        # Redirect straight back to dashboard to view the new entry
         return redirect(url_for('index'))
 
     return render_template('add_assignment.html')
@@ -126,7 +126,6 @@ def delete_assignment(id):
     conn.close()
     return redirect(url_for('index'))
 
-# BOTH ROUTES WORK NOW TO PREVENT BUILDERRORS
 @app.route('/profile', methods=['GET', 'POST'])
 @app.route('/profile_setup', methods=['GET', 'POST'])
 def profile():
@@ -156,17 +155,9 @@ def profile():
 
     return render_template('profile.html', user=user, total=total, completed=completed, pending=pending, postponed=postponed, completion_rate=completion_rate)
 
-@app.route('/profile_setup_alias')
-def profile_setup():
-    return redirect(url_for('profile'))
-
 @app.route('/project_guide')
 def project_guide():
     return render_template('project_guide.html')
-
-@app.route('/analytics')
-def analytics():
-    return redirect(url_for('profile'))
 
 @app.route('/learn')
 def learn_hub():
