@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, abort, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 app.secret_key = "super_secret_assignment_tracker_key"
@@ -128,6 +128,24 @@ def profile():
 
     return render_template('profile.html', user=user, total=total, completed=completed, pending=pending, postponed=postponed, completion_rate=completion_rate)
 
+@app.route('/analytics')
+def analytics():
+    name, _, _, _ = get_student_profile()
+    conn = get_db_connection()
+    completed = conn.execute("SELECT COUNT(*) FROM assignments WHERE status = 'Completed'").fetchone()[0]
+    pending = conn.execute("SELECT COUNT(*) FROM assignments WHERE status != 'Completed'").fetchone()[0]
+    postponed = conn.execute("SELECT COUNT(*) FROM assignments WHERE status = 'Postponed'").fetchone()[0]
+    conn.close()
+    return render_template('analytics.html', student_name=name, completed=completed, pending=pending, postponed=postponed)
+
+@app.route('/performance')
+def performance():
+    name, _, _, _ = get_student_profile()
+    conn = get_db_connection()
+    assignments = conn.execute('SELECT * FROM assignments ORDER BY deadline ASC, id ASC').fetchall()
+    conn.close()
+    return render_template('performance.html', student_name=name, assignments=assignments)
+
 # --------------------------------------------------------------------
 # PAGE 4: ASSIGNMENT DASHBOARD TABLE
 # --------------------------------------------------------------------
@@ -178,6 +196,10 @@ def add_assignment():
 def edit_assignment(id):
     conn = get_db_connection()
     assignment = conn.execute('SELECT * FROM assignments WHERE id = ?', (id,)).fetchone()
+
+    if assignment is None:
+        conn.close()
+        abort(404)
 
     if request.method == 'POST':
         subject = request.form.get('subject')
