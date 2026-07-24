@@ -1,0 +1,53 @@
+# 📊 Output Logs & Application Screenshots
+
+This directory contains the sample system output logs and execution screenshots for the **R23 Assignment Deadline Tracker with AI Priority Layer**.
+
+---
+
+## 📸 1. Application Dashboard Screenshot
+
+![Application Dashboard](demo_screenshot.png)
+
+---
+
+## 📝 2. Sample Output Log (`sample_output.txt`)
+
+```text
+====================================================================
+ R23 ASSIGNMENT DEADLINE TRACKER WITH AI PRIORITY LAYER
+ Sample System Log & Database Export
+====================================================================
+
+[SYSTEM INITIALIZATION]
+Database Status : Connected successfully (assignments.db)
+Server Host     : [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
+Active Modules  : Dashboard, Analytics, AI Priority Engine, Unit Learning Hub
+
+--------------------------------------------------------------------
+1. SAMPLE ASSIGNMENT DATABASE RECORD
+--------------------------------------------------------------------
+ID              : 101
+Title           : Implement Sorting Algorithms & Memory Management
+Subject         : Data Structures & Algorithms (DSA)
+Unit Target     : Unit 2 - Searching and Sorting
+Deadline        : 2026-07-28 (3 Days Remaining)
+Estimated Time  : 4.5 Hours
+Difficulty      : Hard
+Current Status  : In Progress
+
+--------------------------------------------------------------------
+2. AI PRIORITY CLASSIFIER OUTPUT
+--------------------------------------------------------------------
+Input Metrics:
+ - Time Remaining  : 72 Hours
+ - Workload Weight : High (4.5 Hours)
+ - Academic Impact : Core Subject (Weight x1.5)
+
+AI Classification Results:
+ - Calculated Urgency Score : 92/100
+ - Assigned Priority Tag    : 🔴 CRITICAL / HIGH PRIORITY
+ - AI Recommendation       : "High effort required before deadline. Complete algorithm debugging immediately."
+
+====================================================================
+ Status: All systems operational.
+====================================================================
