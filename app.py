@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.secret_key = "super_secret_assignment_tracker_key"
 
 # --------------------------------------------------------------------
-# DATABASE SETUP & AUTO-SEEDING FOR CLOUD DEPLOYMENT
+# DATABASE SETUP & AUTO-MIGRATION (SAFE FOR LOCAL & RENDER)
 # --------------------------------------------------------------------
 def get_db_connection():
     conn = sqlite3.connect('assignments.db')
@@ -15,9 +15,21 @@ def get_db_connection():
     return conn
 
 def init_db():
-    """Automatically creates table and seeds sample assignments on Render."""
+    """Safely creates, migrates, and seeds the database table with all columns."""
     conn = get_db_connection()
-    conn.execute('''
+    cursor = conn.cursor()
+    
+    # Check existing columns in the assignments table if it exists
+    cursor.execute("PRAGMA table_info(assignments)")
+    columns = [column[1] for column in cursor.fetchall()]
+    
+    # If the table exists but is missing the 'unit' column, drop it to recreate cleanly
+    if columns and 'unit' not in columns:
+        cursor.execute("DROP TABLE assignments")
+        conn.commit()
+
+    # Create table with all required columns
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS assignments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
@@ -32,15 +44,15 @@ def init_db():
         )
     ''')
     
-    # If the database is empty, automatically populate default sample tasks
-    count = conn.execute('SELECT COUNT(*) FROM assignments').fetchone()[0]
+    # Seed default sample assignments if the database is empty
+    count = cursor.execute('SELECT COUNT(*) FROM assignments').fetchone()[0]
     if count == 0:
         sample_data = [
             ("Implement Bubble Sort", "Data Structures & Algorithms", "Unit 2", "2026-07-26", 4.0, "Hard", "Pending", 85, "🔴 HIGH / CRITICAL"),
             ("Matrix Multiplication Lab", "Applied Mathematics", "Unit 1", "2026-07-30", 2.5, "Medium", "In Progress", 60, "🟡 MEDIUM PRIORITY"),
             ("Python Flask Setup", "Python Web Dev", "Unit 3", "2026-08-05", 1.5, "Easy", "Pending", 30, "🟢 LOW PRIORITY")
         ]
-        conn.executemany('''
+        cursor.executemany('''
             INSERT INTO assignments (title, subject, unit, deadline, estimated_hours, difficulty, status, priority_score, priority_tag)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', sample_data)
@@ -48,7 +60,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Initialize database right when app boots up
+# Run database setup immediately on startup
 init_db()
 
 # --------------------------------------------------------------------
@@ -239,7 +251,7 @@ def learn_it():
     return render_template('learn/it.html')
 
 # --------------------------------------------------------------------
-# SERVER LAUNCHER
+# SERVER LAUNCHER (CONFIGURED FOR LOCAL & RENDER CLOUD)
 # --------------------------------------------------------------------
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
