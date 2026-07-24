@@ -3,58 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>R23 Core Concepts | Study Hub</title>
+    <title>Assignment Dashboard | Assignment Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </head>
 <body>
 
     <div class="sidebar">
-        <h2>📚 Assignment Tracker</h2>
+        <h2>📊 Assignment Tracker</h2>
         <ul class="nav-links">
-            <li><a href="{{ url_for('index') }}">📊 1. Assignment Dashboard</a></li>
-            <li><a href="{{ url_for('analytics') }}">📈 2. Analytics Hub</a></li>
-            <li><a href="{{ url_for('learn_hub') }}" class="active">📖 3. R23 Core Concepts</a></li>
-            <li><a href="{{ url_for('project_guide') }}">ℹ️ 4. Project Guide</a></li>
-            <li><a href="{{ url_for('profile') }}">👤 5. User Profile</a></li>
+            <li><a href="{{ url_for('learn_hub') }}">📖 1. Subjects Concepts</a></li>
+            <li><a href="{{ url_for('project_guide') }}">ℹ️ 2. All About Project</a></li>
+            <li><a href="{{ url_for('profile') }}">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('index') }}" class="active">📊 4. Assignment Dashboard</a></li>
         </ul>
     </div>
 
     <div class="main-content">
-        <h1>📖 R23 Core Concepts Hub</h1>
-        <p class="header-sub">Access key study materials across your core engineering subjects.</p>
-        <hr style="border-color: var(--border-color, #e2e8f0); margin: 1.5rem 0;">
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-            <div class="dashboard-card">
-                <h3>💻 C Programming</h3>
-                <p>Pointers, Dynamic Memory Allocation, Structures, and File Handling.</p>
-                <a href="{{ url_for('learn_c') }}" class="btn-primary" style="display: inline-block; margin-top: 1rem; text-decoration: none;">View Concepts</a>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+                <h1>📊 Assignment Dashboard</h1>
+                <p class="header-sub">Student: <strong>{{ student_name }}</strong> | Branch: <strong>{{ branch_name }}</strong> | College: <strong>{{ college_name }}</strong></p>
             </div>
+            <a href="{{ url_for('add_assignment') }}" class="btn-primary">➕ Add New Assignment</a>
+        </div>
+        
+        <hr style="border-color: var(--border-color, #2d3748); margin: 1.5rem 0;">
 
-            <div class="dashboard-card">
-                <h3>⚡ Data Structures & Algorithms</h3>
-                <p>Arrays, Linked Lists, Stacks, Queues, Trees, and Sorting Algorithms.</p>
-                <a href="{{ url_for('learn_dsa') }}" class="btn-primary" style="display: inline-block; margin-top: 1rem; text-decoration: none;">View Concepts</a>
+        <div class="dashboard-card">
+            <h2>📋 Pending & Submitted Tasks</h2>
+            
+            {% if assignments %}
+            <div class="table-container" style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                    <thead>
+                        <tr style="text-align: left; border-bottom: 2px solid #2d3748;">
+                            <th style="padding: 0.8rem;">ID</th>
+                            <th style="padding: 0.8rem;">SUBJECT</th>
+                            <th style="padding: 0.8rem;">TITLE</th>
+                            <th style="padding: 0.8rem;">DEADLINE</th>
+                            <th style="padding: 0.8rem;">PRIORITY</th>
+                            <th style="padding: 0.8rem;">STATUS</th>
+                            <th style="padding: 0.8rem; text-align: center;">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr style="border-bottom: 1px solid #1e293b;">
+                            <td style="padding: 0.8rem; font-weight: bold; color: #60a5fa;">{{ assignment.id }}</td>
+                            <td style="padding: 0.8rem; font-weight: 600;">{{ assignment.subject }}</td>
+                            <td style="padding: 0.8rem;">{{ assignment.title }}</td>
+                            <td style="padding: 0.8rem;">{{ assignment.deadline }}</td>
+                            
+                            <td style="padding: 0.8rem;">
+                                {% if assignment.priority == 'High' or 'High' in assignment.priority %}
+                                    <span style="background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">🔴 High</span>
+                                {% elif assignment.priority == 'Medium' or 'Medium' in assignment.priority %}
+                                    <span style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">🟡 Medium</span>
+                                {% else %}
+                                    <span style="background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">🟢 Low</span>
+                                {% endif %}
+                            </td>
+                            
+                            <td style="padding: 0.8rem;">
+                                {% if assignment.status == 'Completed' %}
+                                    <span style="color: #34d399; font-weight: 600;">✅ Completed</span>
+                                {% elif assignment.status == 'Pending' %}
+                                    <span style="color: #fbbf24; font-weight: 600;">⏳ Pending</span>
+                                {% else %}
+                                    <span style="color: #f87171; font-weight: 600;">🛑 Postponed</span>
+                                {% endif %}
+                            </td>
+                            
+                            <td style="padding: 0.8rem; text-align: center;">
+                                <a href="{{ url_for('edit_assignment', id=assignment.id) }}" style="color: #60a5fa; text-decoration: none; margin-right: 0.8rem; font-weight: 600;">✏️ Edit</a>
+                                <a href="{{ url_for('delete_assignment', id=assignment.id) }}" onclick="return confirm('Delete task?');" style="color: #f87171; text-decoration: none; font-weight: 600;">🗑️ Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-
-            <div class="dashboard-card">
-                <h3>🐍 Python Web Development</h3>
-                <p>Flask Routes, Jinja Templating, SQLite integration, and Web Deployment.</p>
-                <a href="{{ url_for('learn_python') }}" class="btn-primary" style="display: inline-block; margin-top: 1rem; text-decoration: none;">View Concepts</a>
+            {% else %}
+            <div style="padding: 2rem; text-align: center; color: #94a3b8;">
+                <p>No active tasks found in database! Click "Add New Assignment" above to create one.</p>
             </div>
-
-            <div class="dashboard-card">
-                <h3>📐 Applied Mathematics</h3>
-                <p>Matrix Operations, Linear Algebra, Differential Equations, and Calculus.</p>
-                <a href="{{ url_for('learn_math') }}" class="btn-primary" style="display: inline-block; margin-top: 1rem; text-decoration: none;">View Concepts</a>
-            </div>
-
-            <div class="dashboard-card">
-                <h3>🛠️ IT Workshop</h3>
-                <p>Command-line basics, Git, GitHub workflows, and system setup.</p>
-                <a href="{{ url_for('learn_it') }}" class="btn-primary" style="display: inline-block; margin-top: 1rem; text-decoration: none;">View Concepts</a>
-            </div>
+            {% endif %}
         </div>
     </div>
 

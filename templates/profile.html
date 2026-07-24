@@ -14,7 +14,7 @@
         <ul class="nav-links">
             <li><a href="{{ url_for('learn_hub') }}">📖 1. Subjects Concepts</a></li>
             <li><a href="{{ url_for('project_guide') }}">ℹ️ 2. All About Project</a></li>
-            <li><a href="{{ url_for('profile_setup') }}" class="active">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('profile') }}" class="active">👤 3. User Profile</a></li>
             <li><a href="{{ url_for('index') }}">📊 4. Assignment Dashboard</a></li>
         </ul>
     </div>
@@ -28,7 +28,7 @@
             
             <div class="dashboard-card">
                 <h2>📝 Student Profile Details</h2>
-                <form action="{{ url_for('profile_setup') }}" method="POST" style="margin-top: 1rem;">
+                <form action="{{ url_for('profile') }}" method="POST" style="margin-top: 1rem;">
                     <div style="margin-bottom: 1rem;">
                         <label style="display: block; margin-bottom: 0.4rem; color: var(--text-muted);">Student Name</label>
                         <input type="text" name="student_name" value="{{ user[0] if user else '' }}" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">

@@ -1,13 +1,12 @@
 import os
 import sqlite3
-from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 app.secret_key = "super_secret_assignment_tracker_key"
 
 # --------------------------------------------------------------------
-# DATABASE CONNECTION & SCHEMA MANAGEMENT
+# DATABASE SETUP
 # --------------------------------------------------------------------
 def get_db_connection():
     conn = sqlite3.connect('assignments.db')
@@ -18,128 +17,75 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Check if existing schema has 'unit' column
-    cursor.execute("PRAGMA table_info(assignments)")
-    columns = [column[1] for column in cursor.fetchall()]
-    
-    # Reset table if schema is outdated
-    if columns and 'unit' not in columns:
-        cursor.execute("DROP TABLE assignments")
-        conn.commit()
-
     # Create assignments table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS assignments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
             subject TEXT NOT NULL,
-            unit TEXT NOT NULL,
+            title TEXT NOT NULL,
             deadline TEXT NOT NULL,
-            estimated_hours REAL NOT NULL,
-            difficulty TEXT NOT NULL,
+            priority TEXT NOT NULL,
             status TEXT NOT NULL,
-            priority_score INTEGER,
-            priority_tag TEXT
+            unit TEXT DEFAULT 'Unit 1'
         )
     ''')
-    
-    # Auto-seed default assignments if database is empty
-    count = cursor.execute('SELECT COUNT(*) FROM assignments').fetchone()[0]
-    if count == 0:
-        sample_data = [
-            ("Implement Bubble Sort", "Data Structures & Algorithms", "Unit 2", "2026-07-26", 4.0, "Hard", "Pending", 85, "🔴 HIGH / CRITICAL"),
-            ("Matrix Multiplication Lab", "Applied Mathematics", "Unit 1", "2026-07-30", 2.5, "Medium", "In Progress", 60, "🟡 MEDIUM PRIORITY"),
-            ("Python Flask Setup", "Python Web Dev", "Unit 3", "2026-08-05", 1.5, "Easy", "Pending", 30, "🟢 LOW PRIORITY")
-        ]
-        cursor.executemany('''
-            INSERT INTO assignments (title, subject, unit, deadline, estimated_hours, difficulty, status, priority_score, priority_tag)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', sample_data)
-        
+
+    # Create profile table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS profile (
+            id INTEGER PRIMARY KEY DEFAULT 1,
+            name TEXT,
+            college TEXT,
+            branch TEXT
+        )
+    ''')
+
+    # Default profile
+    cursor.execute('SELECT COUNT(*) FROM profile')
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("INSERT INTO profile (id, name, college, branch) VALUES (1, 'prakash', 'kiet korngi', 'CSE(AIML)')")
+
     conn.commit()
     conn.close()
 
-# Boot up database
 init_db()
 
-# --------------------------------------------------------------------
-# PRIORITY CALCULATION ENGINE
-# --------------------------------------------------------------------
-def calculate_priority(deadline_str, estimated_hours, difficulty, subject):
-    try:
-        deadline_date = datetime.strptime(deadline_str, "%Y-%m-%d").date()
-        today = datetime.now().date()
-        days_remaining = (deadline_date - today).days
-
-        if days_remaining < 0:
-            days_remaining = 0
-
-        weights = {
-            "Data Structures & Algorithms": 1.5,
-            "C Programming": 1.4,
-            "Applied Mathematics": 1.3,
-            "Python Web Dev": 1.2,
-            "IT Workshop": 1.0
-        }
-        subject_weight = weights.get(subject, 1.1)
-        effort_factor = float(estimated_hours) * 5.0
-
-        urgency = (100.0 / (days_remaining + 1.0)) * 0.50
-        effort = effort_factor * subject_weight
-
-        score = min(100, int(urgency + effort))
-
-        if score >= 75:
-            tag = "🔴 HIGH / CRITICAL"
-        elif score >= 45:
-            tag = "🟡 MEDIUM PRIORITY"
-        else:
-            tag = "🟢 LOW PRIORITY"
-
-        return score, tag, days_remaining
-    except Exception:
-        return 50, "🟡 MEDIUM PRIORITY", 3
+# Helper for user profile
+def get_student_profile():
+    conn = get_db_connection()
+    user = conn.execute('SELECT name, college, branch FROM profile WHERE id = 1').fetchone()
+    conn.close()
+    if user:
+        return user['name'], user['branch'], user['college'], user
+    return "Student", "CSE", "College", ("Student", "College", "CSE")
 
 # --------------------------------------------------------------------
-# ROUTE HANDLERS
+# ROUTES
 # --------------------------------------------------------------------
 @app.route('/')
+@app.route('/dashboard')
 def index():
+    name, branch, college, _ = get_student_profile()
     conn = get_db_connection()
-    assignments_raw = conn.execute('SELECT * FROM assignments ORDER BY deadline ASC').fetchall()
+    assignments = conn.execute('SELECT * FROM assignments ORDER BY id DESC').fetchall()
     conn.close()
-
-    assignments = []
-    for row in assignments_raw:
-        item = dict(row)
-        score, tag, days_left = calculate_priority(
-            item['deadline'], item['estimated_hours'], item['difficulty'], item['subject']
-        )
-        item['priority_score'] = score
-        item['priority_tag'] = tag
-        item['days_left'] = days_left
-        assignments.append(item)
-
-    return render_template('index.html', assignments=assignments)
+    return render_template('index.html', assignments=assignments, student_name=name, branch_name=branch, college_name=college)
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_assignment():
     if request.method == 'POST':
-        title = request.form.get('title', 'Untitled Assignment')
-        subject = request.form.get('subject', 'C Programming')
-        unit = request.form.get('unit', 'Unit 1')
-        deadline = request.form.get('deadline', '2026-08-01')
-        estimated_hours = request.form.get('estimated_hours', 2)
-        difficulty = request.form.get('difficulty', 'Medium')
-        status = "Pending"
-
-        score, tag, _ = calculate_priority(deadline, estimated_hours, difficulty, subject)
+        title = request.form.get('title') or request.form.get('assignment_title') or 'Assignment'
+        subject = request.form.get('subject') or request.form.get('subject_name') or 'General'
+        unit = request.form.get('unit') or 'Unit 1'
+        deadline = request.form.get('deadline') or '2026-08-01'
+        priority = request.form.get('priority') or 'Medium'
+        status = request.form.get('status') or 'Pending'
 
         conn = get_db_connection()
         conn.execute('''
-            INSERT INTO assignments (title, subject, unit, deadline, estimated_hours, difficulty, status, priority_score, priority_tag)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (title, subject, unit, deadline, estimated_hours, difficulty, status, score, tag))
+            INSERT INTO assignments (subject, title, deadline, priority, status, unit)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (subject, title, deadline, priority, status, unit))
         conn.commit()
         conn.close()
 
@@ -153,21 +99,17 @@ def edit_assignment(id):
     assignment = conn.execute('SELECT * FROM assignments WHERE id = ?', (id,)).fetchone()
 
     if request.method == 'POST':
-        title = request.form.get('title')
         subject = request.form.get('subject')
-        unit = request.form.get('unit')
+        title = request.form.get('title')
         deadline = request.form.get('deadline')
-        estimated_hours = request.form.get('estimated_hours')
-        difficulty = request.form.get('difficulty')
+        priority = request.form.get('priority')
         status = request.form.get('status')
-
-        score, tag, _ = calculate_priority(deadline, estimated_hours, difficulty, subject)
 
         conn.execute('''
             UPDATE assignments
-            SET title = ?, subject = ?, unit = ?, deadline = ?, estimated_hours = ?, difficulty = ?, status = ?, priority_score = ?, priority_tag = ?
+            SET subject = ?, title = ?, deadline = ?, priority = ?, status = ?
             WHERE id = ?
-        ''', (title, subject, unit, deadline, estimated_hours, difficulty, status, score, tag, id))
+        ''', (subject, title, deadline, priority, status, id))
         conn.commit()
         conn.close()
 
@@ -184,25 +126,47 @@ def delete_assignment(id):
     conn.close()
     return redirect(url_for('index'))
 
-@app.route('/analytics')
-def analytics():
+# BOTH ROUTES WORK NOW TO PREVENT BUILDERRORS
+@app.route('/profile', methods=['GET', 'POST'])
+@app.route('/profile_setup', methods=['GET', 'POST'])
+def profile():
     conn = get_db_connection()
+    if request.method == 'POST':
+        name = request.form.get('student_name') or request.form.get('name')
+        college = request.form.get('college_name') or request.form.get('college')
+        branch = request.form.get('branch_name') or request.form.get('branch')
+
+        conn.execute('''
+            UPDATE profile
+            SET name = ?, college = ?, branch = ?
+            WHERE id = 1
+        ''', (name, college, branch))
+        conn.commit()
+
+    user_row = conn.execute('SELECT name, college, branch FROM profile WHERE id = 1').fetchone()
+    user = (user_row['name'], user_row['college'], user_row['branch']) if user_row else ('prakash', 'kiet korngi', 'CSE(AIML)')
+
     total = conn.execute('SELECT COUNT(*) FROM assignments').fetchone()[0]
     completed = conn.execute("SELECT COUNT(*) FROM assignments WHERE status = 'Completed'").fetchone()[0]
     pending = conn.execute("SELECT COUNT(*) FROM assignments WHERE status != 'Completed'").fetchone()[0]
-    high_priority = conn.execute("SELECT COUNT(*) FROM assignments WHERE priority_tag LIKE '%HIGH%' OR priority_tag LIKE '%CRITICAL%'").fetchone()[0]
+    postponed = conn.execute("SELECT COUNT(*) FROM assignments WHERE status = 'Postponed'").fetchone()[0]
     conn.close()
 
-    stats = {'total': total, 'completed': completed, 'pending': pending, 'high_priority': high_priority}
-    return render_template('analytics.html', stats=stats)
+    completion_rate = round((completed / total * 100), 1) if total > 0 else 0.0
 
-@app.route('/profile')
-def profile():
-    return render_template('profile.html')
+    return render_template('profile.html', user=user, total=total, completed=completed, pending=pending, postponed=postponed, completion_rate=completion_rate)
+
+@app.route('/profile_setup_alias')
+def profile_setup():
+    return redirect(url_for('profile'))
 
 @app.route('/project_guide')
 def project_guide():
     return render_template('project_guide.html')
+
+@app.route('/analytics')
+def analytics():
+    return redirect(url_for('profile'))
 
 @app.route('/learn')
 def learn_hub():
@@ -228,9 +192,6 @@ def learn_math():
 def learn_it():
     return render_template('learn/it.html')
 
-# --------------------------------------------------------------------
-# SERVER LAUNCHER
-# --------------------------------------------------------------------
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=False)

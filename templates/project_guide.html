@@ -13,7 +13,7 @@
         <ul class="nav-links">
             <li><a href="{{ url_for('learn_hub') }}">📖 1. Subjects Concepts</a></li>
             <li><a href="{{ url_for('project_guide') }}" class="active">ℹ️ 2. All About Project</a></li>
-            <li><a href="{{ url_for('profile_setup') }}">👤 3. User Profile</a></li>
+            <li><a href="{{ url_for('profile') }}">👤 3. User Profile</a></li>
             <li><a href="{{ url_for('index') }}">📊 4. Assignment Dashboard</a></li>
         </ul>
     </div>
@@ -49,79 +49,7 @@ ASSIGNMENT DEDLINE TRACKER WITH PRIORITY/
         ├── c.html              <-- C Language Lesson
         └── it.html             <-- IT Workshop Lesson
             </pre>
-
-            <h3 style="margin-top: 1.5rem; color: var(--accent-purple);">Single-Line Purpose of Each File:</h3>
-            <ul style="color: var(--text-main); margin-left: 1.2rem; margin-top: 0.8rem; line-height: 1.8;">
-                <li><b><code>app.py</code>:</b> Connects user actions on the browser to the database.</li>
-                <li><b><code>database.py</code>:</b> Creates the database storage tables automatically on startup.</li>
-                <li><b><code>assignments.db</code>:</b> Stores all saved student profiles and assignment records.</li>
-                <li><b><code>requirements.txt</code>:</b> Tells Python to install the Flask web library.</li>
-                <li><b><code>style.css</code>:</b> Gives the entire website its dark mode theme and table styling.</li>
-                <li><b><code>script.js</code>:</b> Shows a confirmation alert box before deleting an assignment.</li>
-                <li><b><code>index.html</code>:</b> Displays all saved assignments in a neat table view.</li>
-                <li><b><code>profile.html</code>:</b> Lets students type and save their name, branch, and college.</li>
-                <li><b><code>project_guide.html</code>:</b> Explains how this entire project is built and managed.</li>
-                <li><b><code>add_assignment.html</code>:</b> Provides the form to type and add a new task.</li>
-                <li><b><code>edit_assignment.html</code>:</b> Pre-fills existing task details so you can update them.</li>
-                <li><b><code>learn/index.html</code>:</b> Shows the main menu for all 5 subject lessons.</li>
-                <li><b><code>learn/python.html</code>:</b> Teaches Python basics and Flask web routing.</li>
-                <li><b><code>learn/dsa.html</code>:</b> Teaches Data Structures and 3 core sorting techniques.</li>
-                <li><b><code>learn/math.html</code>:</b> Teaches Matrices and 2D database table mapping.</li>
-                <li><b><code>learn/c.html</code>:</b> Teaches C Language and step-by-step algorithmic logic.</li>
-                <li><b><code>learn/it.html</code>:</b> Teaches VS Code usage, terminal execution, and AI tools.</li>
-            </ul>
         </div>
-
-        <div class="dashboard-card">
-            <h2>👤 2. How Profile Setup Works (Simple Steps)</h2>
-            <div style="background: var(--bg-color); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--accent-purple); margin-top: 0.8rem; line-height: 1.8; color: var(--text-main);">
-                • <b>Step 1:</b> Enter your Name, Branch, and College into the profile form.<br>
-                • <b>Step 2:</b> Click <b>Save Profile</b> to send your details to Python.<br>
-                • <b>Step 3:</b> Python saves your details inside <code>assignments.db</code>.<br>
-                • <b>Step 4:</b> All pages immediately update to show your name and college in the header.
-            </div>
-        </div>
-
-        <div class="dashboard-card">
-            <h2>✏️ 3. How to Edit Assignments (Simple Steps)</h2>
-            <div style="background: var(--bg-color); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--accent-blue); margin-top: 0.8rem; line-height: 1.8; color: var(--text-main);">
-                • <b>Step 1:</b> Click ✏️ <b>Edit</b> next to any task on the dashboard.<br>
-                • <b>Step 2:</b> Python fetches that task's details from the database.<br>
-                • <b>Step 3:</b> The edit page opens with your existing data already typed in.<br>
-                • <b>Step 4:</b> Change whatever field you want (like Status or Priority) and click <b>Update</b>.<br>
-                • <b>Step 5:</b> Python runs the SQL <code>UPDATE</code> command to save your changes and refreshes the table.
-            </div>
-        </div>
-
-        <div class="dashboard-card">
-            <h2>🎨 4. Priority Levels & Color Rules</h2>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                
-                <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); padding: 1rem; border-radius: 8px;">
-                    <h3 style="color: var(--danger);">🔴 Red (High Priority)</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">
-                        <b>Hard / Urgent Tasks:</b> Due in 1–2 days. Requires immediate focus.
-                    </p>
-                </div>
-
-                <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid var(--warning); padding: 1rem; border-radius: 8px;">
-                    <h3 style="color: var(--warning);">🟡 Yellow (Medium Priority)</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">
-                        <b>Medium Tasks:</b> Regular lab reports due in 3–6 days.
-                    </p>
-                </div>
-
-                <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--success); padding: 1rem; border-radius: 8px;">
-                    <h3 style="color: var(--success);">🟢 Green (Low Priority)</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">
-                        <b>Easy / Long-term Tasks:</b> Reading assignments due after a week or more.
-                    </p>
-                </div>
-
-            </div>
-        </div>
-
     </div>
 
 </body>
