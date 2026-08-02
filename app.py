@@ -148,6 +148,44 @@ def validate_deadline(value):
         return "Deadline cannot be in the past. Choose today or a future date."
     return None
 
+def _get_deadline_bucket_counts(total_unique_deadlines):
+    high_count = max(1, (total_unique_deadlines * 40) // 100)
+    medium_count = max(1, (total_unique_deadlines * 35) // 100)
+    low_count = total_unique_deadlines - high_count - medium_count
+
+    if low_count < 0:
+        low_count = 0
+
+    if total_unique_deadlines == 1:
+        high_count = 1
+        medium_count = 0
+        low_count = 0
+    elif total_unique_deadlines == 2:
+        high_count = 1
+        medium_count = 1
+        low_count = 0
+
+    return high_count, medium_count, low_count
+
+
+def _priority_for_deadline(deadline_value, all_deadline_values):
+    deadline_date = date.fromisoformat(deadline_value)
+    unique_deadlines = sorted({date.fromisoformat(value) for value in all_deadline_values})
+    total_unique_deadlines = len(unique_deadlines)
+
+    if total_unique_deadlines == 0:
+        return 'Medium'
+
+    high_count, medium_count, _ = _get_deadline_bucket_counts(total_unique_deadlines)
+    deadline_rank = unique_deadlines.index(deadline_date)
+
+    if deadline_rank < high_count:
+        return 'High'
+    if deadline_rank < high_count + medium_count:
+        return 'Medium'
+    return 'Low'
+
+
 def recalculate_pending_priorities(student_id):
     conn = get_db_connection()
     pending_assignments = conn.execute(
@@ -159,30 +197,24 @@ def recalculate_pending_priorities(student_id):
         conn.close()
         return
 
-    total = len(pending_assignments)
-    high_count = max(1, (total * 40) // 100)
-    medium_count = max(1, (total * 35) // 100)
-    low_count = total - high_count - medium_count
+    grouped_deadlines = {}
+    for row in pending_assignments:
+        grouped_deadlines.setdefault(row['deadline'], []).append(row)
 
-    if low_count < 0:
-        low_count = 0
+    ordered_deadlines = sorted(grouped_deadlines.keys(), key=lambda value: date.fromisoformat(value))
+    high_count, medium_count, _ = _get_deadline_bucket_counts(len(ordered_deadlines))
 
-    if total == 1:
-        high_count = 1
-        medium_count = 0
-        low_count = 0
-    elif total == 2:
-        high_count = 1
-        medium_count = 1
-        low_count = 0
+    deadline_priority_map = {}
+    for index, deadline in enumerate(ordered_deadlines):
+        if index < high_count:
+            deadline_priority_map[deadline] = 'High'
+        elif index < high_count + medium_count:
+            deadline_priority_map[deadline] = 'Medium'
+        else:
+            deadline_priority_map[deadline] = 'Low'
 
-    assigned_levels = [
-        ('High', pending_assignments[:high_count]),
-        ('Medium', pending_assignments[high_count:high_count + medium_count]),
-        ('Low', pending_assignments[high_count + medium_count:high_count + medium_count + low_count])
-    ]
-
-    for level_name, rows in assigned_levels:
+    for deadline, rows in grouped_deadlines.items():
+        level_name = deadline_priority_map[deadline]
         for row in rows:
             conn.execute('UPDATE assignments SET priority = ? WHERE id = ?', (level_name, row['id']))
 
@@ -191,27 +223,10 @@ def recalculate_pending_priorities(student_id):
 
 
 def predict_priority(title, deadline, previous_assignments):
-    deadline_date = date.fromisoformat(deadline)
-    days_remaining = (deadline_date - date.today()).days
-    urgency_score = 100 if days_remaining <= 2 else 75 if days_remaining <= 7 else 50 if days_remaining <= 14 else 25
-
-    previous_dates = sorted(date.fromisoformat(assignment['deadline']) for assignment in previous_assignments)
-    earlier_deadlines = sum(previous_date <= deadline_date for previous_date in previous_dates)
-    deadline_rank_score = round((len(previous_dates) - earlier_deadlines + 1) / (len(previous_dates) + 1) * 100)
-
-    priority_scores = {'High': 100, 'Medium': 60, 'Low': 20}
-    historical_scores = [priority_scores.get(assignment['priority'], 60) for assignment in previous_assignments]
-    history_score = sum(historical_scores) / len(historical_scores)
-
-    urgent_words = ('exam', 'final', 'urgent', 'lab', 'project', 'submission')
-    keyword_score = 20 if any(word in title.lower() for word in urgent_words) else 0
-    total_score = urgency_score * 0.55 + deadline_rank_score * 0.25 + history_score * 0.2 + keyword_score
-
-    if total_score >= 70:
-        return 'High', 'AI prediction: urgent deadline or priority pattern detected.'
-    if total_score >= 45:
-        return 'Medium', 'AI prediction: deadline and previous assignments indicate medium priority.'
-    return 'Low', 'AI prediction: deadline is later than the higher-priority assignments.'
+    deadline_values = [assignment['deadline'] for assignment in previous_assignments]
+    deadline_values.append(deadline)
+    priority = _priority_for_deadline(deadline, deadline_values)
+    return priority, 'AI prediction: deadline-only priority assignment.'
 
 
 def sort_assignments_by_deadline(assignments):
