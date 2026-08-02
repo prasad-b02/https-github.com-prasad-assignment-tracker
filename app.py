@@ -149,20 +149,18 @@ def validate_deadline(value):
     return None
 
 def _get_deadline_bucket_counts(total_unique_deadlines):
-    high_count = max(1, (total_unique_deadlines * 40) // 100)
-    medium_count = max(1, (total_unique_deadlines * 35) // 100)
+    if total_unique_deadlines <= 0:
+        return 0, 0, 0
+    if total_unique_deadlines == 1:
+        return 1, 0, 0
+    if total_unique_deadlines == 2:
+        return 1, 1, 0
+
+    high_count = max(1, (total_unique_deadlines + 2) // 3)
+    medium_count = max(1, (total_unique_deadlines - high_count + 1) // 2)
     low_count = total_unique_deadlines - high_count - medium_count
 
     if low_count < 0:
-        low_count = 0
-
-    if total_unique_deadlines == 1:
-        high_count = 1
-        medium_count = 0
-        low_count = 0
-    elif total_unique_deadlines == 2:
-        high_count = 1
-        medium_count = 1
         low_count = 0
 
     return high_count, medium_count, low_count
