@@ -171,6 +171,31 @@ def predict_priority(title, deadline, previous_assignments):
         return 'Medium', 'AI prediction: deadline and previous assignments indicate medium priority.'
     return 'Low', 'AI prediction: deadline is later than the higher-priority assignments.'
 
+
+def sort_assignments_by_deadline(assignments):
+    today = date.today()
+    pending = []
+    completed = []
+
+    for assignment in assignments:
+        status = assignment['status'] if isinstance(assignment, sqlite3.Row) else assignment.get('status')
+        if status == 'Completed':
+            completed.append(assignment)
+        else:
+            pending.append(assignment)
+
+    def deadline_key(assignment):
+        deadline_value = assignment['deadline'] if isinstance(assignment, sqlite3.Row) else assignment.get('deadline')
+        try:
+            deadline_date = date.fromisoformat(deadline_value)
+            days_remaining = (deadline_date - today).days
+            return (days_remaining, deadline_date.isoformat(), assignment['id'] if isinstance(assignment, sqlite3.Row) else assignment.get('id'))
+        except (TypeError, ValueError):
+            return (999999, str(deadline_value), assignment['id'] if isinstance(assignment, sqlite3.Row) else assignment.get('id'))
+
+    pending.sort(key=deadline_key)
+    return pending + completed
+
 # --------------------------------------------------------------------
 # PAGE 1: SUBJECTS CONCEPTS HUB (DEFAULT HOME PAGE)
 # --------------------------------------------------------------------
@@ -293,6 +318,7 @@ def dashboard():
     conn = get_db_connection()
     assignments = conn.execute('SELECT * FROM assignments WHERE student_id = ? ORDER BY id DESC', (student['id'],)).fetchall()
     conn.close()
+    assignments = sort_assignments_by_deadline(assignments)
     return render_template('index.html', assignments=assignments, student_name=student['name'], branch_name=student['branch'], college_name=student['college'])
 
 # Endpoint alias for templates calling url_for('index')
