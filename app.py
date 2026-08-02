@@ -148,6 +148,48 @@ def validate_deadline(value):
         return "Deadline cannot be in the past. Choose today or a future date."
     return None
 
+def recalculate_pending_priorities(student_id):
+    conn = get_db_connection()
+    pending_assignments = conn.execute(
+        'SELECT id, deadline, status FROM assignments WHERE student_id = ? AND status != ? ORDER BY deadline ASC, id ASC',
+        (student_id, 'Completed')
+    ).fetchall()
+
+    if not pending_assignments:
+        conn.close()
+        return
+
+    total = len(pending_assignments)
+    high_count = max(1, (total * 40) // 100)
+    medium_count = max(1, (total * 35) // 100)
+    low_count = total - high_count - medium_count
+
+    if low_count < 0:
+        low_count = 0
+
+    if total == 1:
+        high_count = 1
+        medium_count = 0
+        low_count = 0
+    elif total == 2:
+        high_count = 1
+        medium_count = 1
+        low_count = 0
+
+    assigned_levels = [
+        ('High', pending_assignments[:high_count]),
+        ('Medium', pending_assignments[high_count:high_count + medium_count]),
+        ('Low', pending_assignments[high_count + medium_count:high_count + medium_count + low_count])
+    ]
+
+    for level_name, rows in assigned_levels:
+        for row in rows:
+            conn.execute('UPDATE assignments SET priority = ? WHERE id = ?', (level_name, row['id']))
+
+    conn.commit()
+    conn.close()
+
+
 def predict_priority(title, deadline, previous_assignments):
     deadline_date = date.fromisoformat(deadline)
     days_remaining = (deadline_date - date.today()).days
@@ -177,21 +219,34 @@ def sort_assignments_by_deadline(assignments):
     pending = []
     completed = []
 
+    def extract_fields(assignment):
+        if isinstance(assignment, sqlite3.Row):
+            return assignment['id'], assignment['deadline'], assignment['status']
+        if isinstance(assignment, dict):
+            return assignment.get('id'), assignment.get('deadline'), assignment.get('status')
+        if len(assignment) >= 7:
+            return assignment[0], assignment[4], assignment[6]
+        if len(assignment) >= 6:
+            return assignment[0], assignment[3], assignment[5]
+        if len(assignment) >= 4:
+            return assignment[0], assignment[2], assignment[3]
+        return None, None, None
+
     for assignment in assignments:
-        status = assignment['status'] if isinstance(assignment, sqlite3.Row) else assignment.get('status')
+        assignment_id, deadline_value, status = extract_fields(assignment)
         if status == 'Completed':
             completed.append(assignment)
         else:
             pending.append(assignment)
 
     def deadline_key(assignment):
-        deadline_value = assignment['deadline'] if isinstance(assignment, sqlite3.Row) else assignment.get('deadline')
+        assignment_id, deadline_value, status = extract_fields(assignment)
         try:
             deadline_date = date.fromisoformat(deadline_value)
             days_remaining = (deadline_date - today).days
-            return (days_remaining, deadline_date.isoformat(), assignment['id'] if isinstance(assignment, sqlite3.Row) else assignment.get('id'))
+            return (days_remaining, deadline_date.isoformat(), assignment_id)
         except (TypeError, ValueError):
-            return (999999, str(deadline_value), assignment['id'] if isinstance(assignment, sqlite3.Row) else assignment.get('id'))
+            return (999999, str(deadline_value), assignment_id)
 
     pending.sort(key=deadline_key)
     return pending + completed
@@ -361,6 +416,7 @@ def add_assignment():
         ''', (student['id'], subject, title, deadline, priority, status))
         conn.commit()
         conn.close()
+        recalculate_pending_priorities(student['id'])
 
         return redirect(url_for('dashboard'))
 
@@ -404,6 +460,7 @@ def edit_assignment(id):
         ''', (subject, title, deadline, priority, status, id, student['id']))
         conn.commit()
         conn.close()
+        recalculate_pending_priorities(student['id'])
 
         return redirect(url_for('dashboard'))
 
@@ -420,6 +477,7 @@ def delete_assignment(id):
     conn.execute('DELETE FROM assignments WHERE id = ? AND student_id = ?', (id, student['id']))
     conn.commit()
     conn.close()
+    recalculate_pending_priorities(student['id'])
     return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
