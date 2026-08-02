@@ -28,13 +28,16 @@
             <form action="{{ url_for('add_assignment') }}" method="POST">
                 
                 <h3 style="margin-bottom: 1rem; color: #60a5fa;">Step 1: Subject & Title</h3>
+                {% if duplicate_error %}
+                <p style="color: #f87171; margin-bottom: 1rem;">{{ duplicate_error }}</p>
+                {% endif %}
                 <div style="margin-bottom: 1.2rem;">
                     <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Subject Name</label>
-                    <input type="text" name="subject" required placeholder="e.g., Python Programming" style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
+                    <input type="text" name="subject" required placeholder="e.g., Python Programming" value="{{ form_data.get('subject', '') if form_data else '' }}" style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid {% if duplicate_error %}#f87171{% else %}var(--border-color){% endif %}; border-radius: 6px; color: #fff;">
                 </div>
                 <div style="margin-bottom: 1.5rem;">
                     <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Assignment Title</label>
-                    <input type="text" name="title" required placeholder="e.g., Lab Record Unit 1" style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
+                    <input type="text" name="title" required placeholder="e.g., Lab Record Unit 1" value="{{ form_data.get('title', '') if form_data else '' }}" style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid {% if duplicate_error %}#f87171{% else %}var(--border-color){% endif %}; border-radius: 6px; color: #fff;">
                 </div>
 
                 <h3 style="margin-bottom: 1rem; color: #60a5fa;">Step 2: Submission Deadline</h3>
@@ -43,7 +46,7 @@
                     {% if deadline_error %}
                     <p style="color: #f87171; margin-bottom: 0.5rem;">{{ deadline_error }}</p>
                     {% endif %}
-                    <input type="date" name="deadline" min="{{ today }}" value="{{ form_data.get('deadline', '') if form_data else '' }}" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: #fff;">
+                    <input type="date" name="deadline" min="{{ today }}" value="{{ form_data.get('deadline', '') if form_data else '' }}" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid {% if duplicate_error %}#f87171{% else %}var(--border-color){% endif %}; border-radius: 6px; color: #fff;">
                 </div>
 
                 <h3 style="margin-bottom: 1rem; color: #60a5fa;">Step 3: Select Priority</h3>

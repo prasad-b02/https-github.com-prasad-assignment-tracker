@@ -404,6 +404,30 @@ def add_assignment():
             return render_template('add_assignment.html', deadline_error=deadline_error, form_data=request.form, today=date.today().isoformat(), assignment_count=assignment_count), 400
 
         conn = get_db_connection()
+        existing_assignment = conn.execute(
+            '''
+            SELECT id
+            FROM assignments
+            WHERE student_id = ?
+              AND LOWER(subject) = LOWER(?)
+              AND LOWER(title) = LOWER(?)
+              AND deadline = ?
+            LIMIT 1
+            ''',
+            (student['id'], subject, title, deadline)
+        ).fetchone()
+
+        if existing_assignment is not None:
+            assignment_count = conn.execute('SELECT COUNT(*) FROM assignments WHERE student_id = ?', (student['id'],)).fetchone()[0]
+            conn.close()
+            return render_template(
+                'add_assignment.html',
+                duplicate_error='This assignment already exists. Please check your assignment list or enter a different assignment.',
+                form_data=request.form,
+                today=date.today().isoformat(),
+                assignment_count=assignment_count,
+            ), 400
+
         previous_assignments = conn.execute('SELECT deadline, priority FROM assignments WHERE student_id = ? ORDER BY deadline ASC, id ASC', (student['id'],)).fetchall()
         if previous_assignments:
             priority, prediction_message = predict_priority(title, deadline, previous_assignments)
