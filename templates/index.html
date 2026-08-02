@@ -25,7 +25,10 @@
                 <h1>📊 Assignment Dashboard</h1>
                 <p class="header-sub">Student: <strong>{{ student_name }}</strong> | Branch: <strong>{{ branch_name }}</strong> | College: <strong>{{ college_name }}</strong></p>
             </div>
-            <a href="{{ url_for('add_assignment') }}" class="btn-primary">➕ Add New Assignment</a>
+            <div style="display: flex; gap: 0.6rem; align-items: center;">
+                <a href="{{ url_for('add_assignment') }}" class="btn-primary">➕ Add New Assignment</a>
+                <a href="{{ url_for('logout') }}" class="btn-primary" style="background: #1f2937; border-color: #475569;">🔄 Switch Student</a>
+            </div>
         </div>
         
         <hr style="border-color: var(--border-color, #2d3748); margin: 1.5rem 0;">

@@ -23,6 +23,18 @@
         <p class="header-sub">Learn core engineering concepts and see how they power this Assignment Tracker</p>
         <hr style="border-color: var(--border-color); margin: 1.5rem 0;">
 
+        <div class="dashboard-card" style="margin-bottom: 1.5rem;">
+            <h2>👤 Student Access</h2>
+            <form action="{{ url_for('learn_hub') }}" method="POST" style="margin-top: 1rem; display: grid; gap: 0.8rem;">
+                <label style="display: block; color: var(--text-muted);">Student Name</label>
+                <input type="text" name="student_name" value="{{ active_student.name if active_student else '' }}" placeholder="Enter Student Name" required style="width: 100%; padding: 0.8rem; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main);">
+                <button type="submit" class="btn-primary">Open Assignment Tracker</button>
+            </form>
+            {% if active_student %}
+            <p style="margin-top: 0.8rem; color: var(--text-muted);">Active Student: <strong>{{ active_student.name }}</strong></p>
+            {% endif %}
+        </div>
+
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
             
             <div class="dashboard-card">

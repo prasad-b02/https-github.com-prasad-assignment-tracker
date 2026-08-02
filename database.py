@@ -5,8 +5,16 @@ DATABASE = "assignments.db"
 def create_table():
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    
-    # Table 1: User Profile Credentials
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS students (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        college TEXT,
+        branch TEXT
+    )
+    """)
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS user_profile (
         id INTEGER PRIMARY KEY,
@@ -16,10 +24,10 @@ def create_table():
     )
     """)
 
-    # Table 2: Assignments Data
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS assignments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id INTEGER DEFAULT 1,
         subject TEXT NOT NULL,
         title TEXT NOT NULL,
         deadline TEXT NOT NULL,
@@ -27,6 +35,10 @@ def create_table():
         status TEXT NOT NULL
     )
     """)
+
+    assignment_columns = {row[1] for row in cursor.execute('PRAGMA table_info(assignments)').fetchall()}
+    if 'student_id' not in assignment_columns:
+        cursor.execute('ALTER TABLE assignments ADD COLUMN student_id INTEGER DEFAULT 1')
 
     conn.commit()
     conn.close()
